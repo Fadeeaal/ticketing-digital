@@ -1,0 +1,15 @@
+{
+  "name": "ticketing-digital",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "web", 
+    "mobile",
+    "shared"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:web": "npm run dev --workspace=web",
+    "dev:mobile": "npm run start --workspace=mobile"
+  }
+}
