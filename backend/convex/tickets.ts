@@ -17,7 +17,17 @@ function getToday(): string {
   return `${dd}-${mm}-${yyyy}`;
 }
 
-// Today ticket list
+// All tickets list
+export const allTickets = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("tickets")
+      .collect();
+  },
+});
+
+// Today tickets list
 export const listTodayTickets = query({
   args: {},
   handler: async (ctx) => {
@@ -26,6 +36,29 @@ export const listTodayTickets = query({
       .query("tickets")
       .filter(q => q.eq(q.field("inbound_date"), todayStr))
       .collect();
+  },
+});
+
+export const getTodayTicketByLicensePlate = query({
+  args: { license_plate: v.string() },
+  handler: async (ctx, args) => {
+    const todayStr = getToday();
+    
+    const ticket = await ctx.db
+      .query("tickets")
+      .filter(q => 
+        q.and(
+          q.eq(q.field("inbound_date"), todayStr),
+          q.eq(q.field("license_plate"), args.license_plate)
+        )
+      )
+      .first();
+    
+    if (!ticket) {
+      throw new Error(`Tidak ada ticket untuk plat nomor ${args.license_plate} hari ini`);
+    }
+    
+    return ticket;
   },
 });
 

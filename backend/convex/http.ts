@@ -4,7 +4,59 @@ import { api } from "./_generated/api";
 
 const http = httpRouter();
 
-// 1. Create new ticket
+// Get All tickets
+http.route({
+  path: "/api/tickets/all",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    try {
+      const result = await ctx.runQuery(api.tickets.allTickets, {});
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: result 
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: error.message 
+      }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+  }),
+});
+
+// Get today's tickets
+http.route({
+  path: "/api/tickets/today",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    try {
+      const result = await ctx.runQuery(api.tickets.listTodayTickets, {});
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: result 
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: error.message 
+      }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+  }),
+});
+
+// Create new ticket
 http.route({
   path: "/api/create-ticket",
   method: "POST",
@@ -31,33 +83,7 @@ http.route({
   }),
 });
 
-// 2. Get today's tickets
-http.route({
-  path: "/api/tickets/today",
-  method: "GET",
-  handler: httpAction(async (ctx) => {
-    try {
-      const result = await ctx.runQuery(api.tickets.listTodayTickets, {});
-      return new Response(JSON.stringify({ 
-        success: true, 
-        data: result 
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (error: any) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: error.message 
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-  }),
-});
-
-// 3. Start unloading
+// Start unloading
 http.route({
   path: "/api/tickets/start-unloading",
   method: "PUT",
@@ -100,7 +126,7 @@ http.route({
   }),
 });
 
-// 4. Finish unloading
+// Finish unloading
 http.route({
   path: "/api/tickets/finish-unloading",
   method: "PUT",
@@ -143,7 +169,7 @@ http.route({
   }),
 });
 
-// 5. Driver departure
+// Driver departure
 http.route({
   path: "/api/tickets/driver-departure",
   method: "PUT",
