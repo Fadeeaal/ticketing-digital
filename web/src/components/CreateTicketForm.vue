@@ -279,7 +279,7 @@ const submitTicket = async () => {
 
     // Validate all documents are checked
     if (!formData.sj_available || (!formData.ktp_available && !formData.sim_available)) {
-      throw new Error('Semua dokumen (SJ, KTP, SIM) harus tersedia sebelum melanjutkan')
+      throw new Error('Dokumen SJ wajib tersedia, dan setidaknya salah satu dari KTP atau SIM harus tersedia sebelum melanjutkan')
     }
 
     // Validate license plate parts
