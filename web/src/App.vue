@@ -1,10 +1,22 @@
 <template>
   <div id="app">
-    <h1>Ticketing Digital - Web App</h1>
-    <ConvexTest />
+    <CreateTicketForm />
   </div>
 </template>
 
 <script setup lang="ts">
-import ConvexTest from './components/ConvexTest.vue'
+import CreateTicketForm from './components/CreateTicketForm.vue'
 </script>
+
+<style>
+#app {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+</style>
