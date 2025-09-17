@@ -17,7 +17,17 @@ function getToday(): string {
   return `${dd}-${mm}-${yyyy}`;
 }
 
-// Today ticket list
+// All tickets list
+export const allTickets = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("tickets")
+      .collect();
+  },
+});
+
+// Today tickets list
 export const listTodayTickets = query({
   args: {},
   handler: async (ctx) => {
