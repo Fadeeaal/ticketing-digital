@@ -39,29 +39,6 @@ export const listTodayTickets = query({
   },
 });
 
-export const getTodayTicketByLicensePlate = query({
-  args: { license_plate: v.string() },
-  handler: async (ctx, args) => {
-    const todayStr = getToday();
-    
-    const ticket = await ctx.db
-      .query("tickets")
-      .filter(q => 
-        q.and(
-          q.eq(q.field("inbound_date"), todayStr),
-          q.eq(q.field("license_plate"), args.license_plate)
-        )
-      )
-      .first();
-    
-    if (!ticket) {
-      throw new Error(`Tidak ada ticket untuk plat nomor ${args.license_plate} hari ini`);
-    }
-    
-    return ticket;
-  },
-});
-
 // Create new ticket
 export const createTicket = mutation({
   args: {
