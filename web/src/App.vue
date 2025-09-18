@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <CreateTicketForm />
+    <router-view />
   </div>
 </template>
 
 <script setup lang="ts">
-import CreateTicketForm from './components/CreateTicketForm.vue'
+// Main app component
 </script>
 
 <style>
