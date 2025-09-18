@@ -1,24 +1,15 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-5 font-sans">
+  <div class="min-h-screen bg-white p-5 font-sans">
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Logo Section (Left Side) -->
-        <div class="lg:col-span-1 flex flex-col items-center justify-center bg-white rounded-xl shadow-lg p-8">
-          <div class="w-32 h-32 bg-blue-500 rounded-full flex items-center justify-center mb-6">
-            <!-- Placeholder logo - ganti dengan logo perusahaan -->
-            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <h2 class="text-2xl font-bold text-gray-800 mb-2">PT TICKETING DIGITAL</h2>
-          <p class="text-gray-600 text-center">Sistem Manajemen Inbound Kendaraan</p>
-        </div>
-
         <!-- Form Section (Right Side) -->
         <div class="lg:col-span-2">
           <div class="text-center mb-8">
-            <h1 class="text-gray-800 mb-2 text-3xl font-bold">Form Ticketing</h1>
+            <div class="flex items-center justify-center gap-4 mb-2">
+              <img src="../assets/orbiz-logo.png" alt="Orbiz Logo" class="w-12 h-12 object-contain" />
+              <h1 class="text-gray-800 text-3xl font-bold">Form Ticketing</h1>
+            </div>
             <p class="text-gray-500 text-base">Silakan isi ticketing agar inbound diproses</p>
           </div>
 
@@ -193,6 +184,14 @@
               class="w-full py-4 bg-blue-500 text-white border-none rounded-lg text-lg font-semibold cursor-pointer transition-colors duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {{ isSubmitting ? 'Memproses...' : 'Buat Tiket' }}
+            </button>
+
+            <button 
+              type="button"
+              @click="$router.push('/tickets')"
+              class="w-full py-4 bg-gray-500 text-white border-none rounded-lg text-lg font-semibold cursor-pointer transition-colors duration-200 hover:bg-gray-600 mb-4"
+            >
+              Lihat Daftar Ticket Hari Ini
             </button>
           </form>
         </div>

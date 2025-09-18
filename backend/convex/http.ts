@@ -4,33 +4,26 @@ import { api } from "./_generated/api";
 
 const http = httpRouter();
 
-// Get All tickets
+// CORS headers helper
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+// Handle preflight requests
 http.route({
-  path: "/api/tickets/all",
-  method: "GET",
-  handler: httpAction(async (ctx) => {
-    try {
-      const result = await ctx.runQuery(api.tickets.allTickets, {});
-      return new Response(JSON.stringify({ 
-        success: true, 
-        data: result 
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (error: any) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: error.message 
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
+  path: "/api/*",
+  method: "OPTIONS",
+  handler: httpAction(async () => {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
   }),
 });
 
-// Get today's tickets
+// Get today's tickets (dengan CORS)
 http.route({
   path: "/api/tickets/today",
   method: "GET",
@@ -42,7 +35,10 @@ http.route({
         data: result 
       }), {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     } catch (error: any) {
       return new Response(JSON.stringify({ 
@@ -50,13 +46,48 @@ http.route({
         error: error.message 
       }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     }
   }),
 });
 
-// Create new ticket
+// Get All tickets (dengan CORS)
+http.route({
+  path: "/api/tickets/all",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    try {
+      const result = await ctx.runQuery(api.tickets.allTickets, {});
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: result 
+      }), {
+        status: 200,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: error.message 
+      }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    }
+  }),
+});
+
+// Create new ticket (dengan CORS)
 http.route({
   path: "/api/create-ticket",
   method: "POST",
@@ -69,7 +100,10 @@ http.route({
         data: result 
       }), {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     } catch (error: any) {
       return new Response(JSON.stringify({ 
@@ -77,13 +111,16 @@ http.route({
         error: error.message 
       }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     }
   }),
 });
 
-// Start unloading
+// Start unloading (dengan CORS)
 http.route({
   path: "/api/tickets/start-unloading",
   method: "PUT",
@@ -98,7 +135,10 @@ http.route({
           error: "ticketId parameter is required" 
         }), {
           status: 400,
-          headers: { "Content-Type": "application/json" }
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
         });
       }
       
@@ -112,7 +152,10 @@ http.route({
         ticketId: ticketId,
       }), {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     } catch (error: any) {
       return new Response(JSON.stringify({ 
@@ -120,13 +163,16 @@ http.route({
         error: error.message 
       }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     }
   }),
 });
 
-// Finish unloading
+// Finish unloading (dengan CORS)
 http.route({
   path: "/api/tickets/finish-unloading",
   method: "PUT",
@@ -141,7 +187,10 @@ http.route({
           error: "ticketId parameter is required" 
         }), {
           status: 400,
-          headers: { "Content-Type": "application/json" }
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
         });
       }
       
@@ -155,7 +204,10 @@ http.route({
         ticketId: ticketId
       }), {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     } catch (error: any) {
       return new Response(JSON.stringify({ 
@@ -163,13 +215,16 @@ http.route({
         error: error.message 
       }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     }
   }),
 });
 
-// Driver departure
+// Driver departure (dengan CORS)
 http.route({
   path: "/api/tickets/driver-departure",
   method: "PUT",
@@ -184,7 +239,10 @@ http.route({
           error: "ticketId parameter is required" 
         }), {
           status: 400,
-          headers: { "Content-Type": "application/json" }
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
         });
       }
       
@@ -198,7 +256,10 @@ http.route({
         ticketId: ticketId
       }), {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     } catch (error: any) {
       return new Response(JSON.stringify({ 
@@ -206,7 +267,10 @@ http.route({
         error: error.message 
       }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
       });
     }
   }),

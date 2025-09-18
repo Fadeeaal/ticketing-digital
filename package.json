@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": [
     "backend",
-    "web", 
+    "web",
     "mobile",
     "shared"
   ],
@@ -11,5 +11,9 @@
     "dev:backend": "npm run dev --workspace=backend",
     "dev:web": "npm run dev --workspace=web",
     "dev:mobile": "npm run start --workspace=mobile"
+  },
+  "dependencies": {
+    "qrcode.vue": "^3.6.0",
+    "vue-qrcode-reader": "^5.7.3"
   }
 }
