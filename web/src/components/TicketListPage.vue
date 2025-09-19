@@ -19,13 +19,6 @@
           >
             {{ loading ? 'Memuat...' : 'Refresh' }}
           </button>
-          
-          <button 
-            @click="$router.push('/')"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors duration-200"
-          >
-            Buat Ticket Baru
-          </button>
         </div>
       </div>
 
@@ -64,7 +57,7 @@
         <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Ticket Hari Ini</h3>
         <p class="text-gray-500 mb-4">Belum ada ticket yang dibuat untuk hari ini</p>
         <button 
-          @click="$router.push('/')"
+          @click="$router.push('/create-ticket')"
           class="px-6 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors duration-200"
         >
           Buat Ticket Pertama
@@ -77,13 +70,13 @@
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kendaraan</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perusahaan</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dokumen</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kendaraan</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Perusahaan</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Dokumen</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">QR Code</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -133,18 +126,11 @@
                   <div>Tiba: {{ ticket.arrival_time }}</div>
                   <div v-if="ticket.start_unloading_time">Mulai: {{ ticket.start_unloading_time }}</div>
                   <div v-if="ticket.finish_unloading_time">Selesai: {{ ticket.finish_unloading_time }}</div>
-                  <div v-if="ticket.driver_departure_time">Berangkat: {{ ticket.driver_departure_time }}</div>
-                </td>
-
-                <!-- Actions -->
-                <td class="px-6 py-4 whitespace-nowrap text-sm space-y-2">
-                  <div v-if="ticket.ticket_status === 3" class="text-center">
-                    <span class="text-green-600 font-medium text-xs">Selesai</span>
-                  </div>
+                  <div v-if="ticket.departure_time">Berangkat: {{ ticket.departure_time }}</div>
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <qrcode-vue :value="`http://10.255.82.73:5173/scan?ticketId=${ticket._id}`" :size="64" />
+                    <qrcode-vue :value="`http://10.255.82.73:5173/scan?ticketId=${ticket._id}`" :size="96" />
                 </td>
               </tr>
             </tbody>
@@ -186,6 +172,8 @@ const loading = ref(true)
 const errorMessage = ref('')
 const successMessage = ref('')
 const actionLoading = reactive<Record<string, boolean>>({})
+import { api } from '../../../backend/convex/_generated/api'
+import type { Id } from '../../../backend/convex/_generated/dataModel'
 
 const currentDate = computed(() => {
   const today = new Date()
@@ -203,16 +191,13 @@ const loadTodayTickets = async () => {
     errorMessage.value = ''
 
     // Debug logs
-    console.log('Environment URL:', import.meta.env.VITE_CONVEX_URL)
     let finalUrl = `${import.meta.env.VITE_CONVEX_URL}/api/tickets/today`.replace('.convex.cloud', '.convex.site')
-    console.log('Final URL:', finalUrl)
 
     // Fallback: try different endpoint if today fails
     let response = await fetch(finalUrl)
     
     // If today endpoint fails, try all endpoint and filter manually
     if (!response.ok) {
-      console.log('Today endpoint failed, trying all endpoint...')
       finalUrl = `${import.meta.env.VITE_CONVEX_URL}/api/tickets/all`.replace('.convex.cloud', '.convex.site')
       response = await fetch(finalUrl)
     }
@@ -279,24 +264,20 @@ const updateTicketStatus = async (ticketId: string, action: string) => {
     actionLoading[ticketId] = true
     errorMessage.value = ''
 
-    console.log('Updating ticket status:', ticketId, action)
-
     // Map actions to Convex mutations
-    const mutationMap: Record<string, string> = {
-      'start-unloading': 'tickets:setStartUnloadingTime',
-      'finish-unloading': 'tickets:setFinishUnloadingTime', 
-      'driver-departure': 'tickets:setDriverDepartureTime'
+    const mutationMap: Record<string, any> = {
+      'start-unloading': api.tickets.setStartUnloadingTime,
+      'finish-unloading': api.tickets.setFinishUnloadingTime,
+      'driver-departure': api.tickets.setDriverDepartureTime
     }
 
-    const mutationName = mutationMap[action]
-    if (!mutationName) {
+    const mutationFn = mutationMap[action]
+    if (!mutationFn) {
       throw new Error('Invalid action: ' + action)
     }
 
-    console.log('Calling mutation:', mutationName, 'with ticketId:', ticketId)
-
     // Use Convex client instead of fetch to avoid CORS
-    const result = await convex.mutation(mutationName, { ticketId })
+    const result = await convex.mutation(mutationFn, { ticketId: ticketId as Id<"tickets"> })
     
     console.log('Mutation result:', result)
 

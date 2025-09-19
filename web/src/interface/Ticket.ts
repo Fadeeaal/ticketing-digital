@@ -20,6 +20,6 @@ export interface Ticket {
   arrival_time: string;
   start_unloading_time?: string;    // Optional fields
   finish_unloading_time?: string;   // Optional fields
-  driver_departure_time?: string;   // Optional fields
+  departure_time?: string;   // Optional fields
   driver: Driver;                   // Joined driver data
 }

@@ -1,4 +1,3 @@
-<!-- filepath: d:\my-project\ticketing-digital\web\src\components\ScanTicketStatus.vue -->
 <template>
   <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
     <h2 class="text-2xl font-bold mb-4">Update Status Ticket</h2>
@@ -41,6 +40,8 @@ import { ref, onMounted } from 'vue'
 import { QrcodeStream } from 'vue-qrcode-reader'
 import { useRoute, useRouter } from 'vue-router'
 import convex from '../convex'
+import { api } from '../../../backend/convex/_generated/api'
+import type { Id } from '../../../backend/convex/_generated/dataModel'
 
 const scanResult = ref('')
 const processing = ref(false)
@@ -93,15 +94,14 @@ const processScan = async (ticketId: string) => {
     processing.value = false
     return
   }
-
   // Map ke mutation convex
-  const mutationMap: Record<string, string> = {
-    'start-unloading': 'tickets:setStartUnloadingTime',
-    'finish-unloading': 'tickets:setFinishUnloadingTime',
-    'driver-departure': 'tickets:setDriverDepartureTime'
+  const mutationMap = {
+    'start-unloading': api.tickets.setStartUnloadingTime,
+    'finish-unloading': api.tickets.setFinishUnloadingTime,
+    'driver-departure': api.tickets.setDriverDepartureTime
   }
   try {
-    await convex.mutation(mutationMap[action], { ticketId })
+    await convex.mutation(mutationMap[action], { ticketId: ticketId as Id<"tickets"> })
     successMessage.value = `Status berhasil diupdate: ${action.replace('-', ' ')}`
     setScanCount(ticketId, scanCount)
   } catch (e: any) {

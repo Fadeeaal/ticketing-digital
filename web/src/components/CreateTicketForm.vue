@@ -10,7 +10,6 @@
               <img src="../assets/orbiz-logo.png" alt="Orbiz Logo" class="w-12 h-12 object-contain" />
               <h1 class="text-gray-800 text-3xl font-bold">Form Ticketing</h1>
             </div>
-            <p class="text-gray-500 text-base">Silakan isi ticketing agar inbound diproses</p>
           </div>
 
           <form @submit.prevent="submitTicket" class="bg-white p-8 rounded-xl shadow-lg">
@@ -185,14 +184,6 @@
             >
               {{ isSubmitting ? 'Memproses...' : 'Buat Tiket' }}
             </button>
-
-            <button 
-              type="button"
-              @click="$router.push('/tickets')"
-              class="w-full py-4 bg-gray-500 text-white border-none rounded-lg text-lg font-semibold cursor-pointer transition-colors duration-200 hover:bg-gray-600 mb-4"
-            >
-              Lihat Daftar Ticket Hari Ini
-            </button>
           </form>
         </div>
       </div>
@@ -222,6 +213,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import convex from '../convex'
+import { useRouter } from 'vue-router'
+import { api } from '../../../backend/convex/_generated/api'
+
+const router = useRouter()
 
 const formData = reactive({
   driver_name: '',
@@ -311,7 +306,7 @@ const submitTicket = async () => {
     } catch (fetchError) {
       console.error('Direct API failed, trying Convex client:', fetchError)
       // Fallback to Convex client
-      result = await convex.mutation('tickets:createTicket', submitData)
+      result = await convex.mutation(api.tickets.createTicket, submitData)
     }
     
     createdTicket.value = result
@@ -330,12 +325,15 @@ const submitTicket = async () => {
     formData.ktp_available = false
     formData.sim_available = false
 
+    // Navigate to ticket list after success
+    router.push('/')
+
   } catch (error: unknown) {
     console.error('Submit error:', error)
     if (error instanceof Error) {
-      errorMessage.value = error.message || 'Gagal membuat tiket. Silakan coba lagi.'
+      errorMessage.value = error.message || 'Gagal membuat tiket. Silahkan coba lagi.'
     } else {
-      errorMessage.value = 'Gagal membuat tiket. Silakan coba lagi.'
+      errorMessage.value = 'Gagal membuat tiket. Silahkan coba lagi.'
     }
   } finally {
     isSubmitting.value = false
