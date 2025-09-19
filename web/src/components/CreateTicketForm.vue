@@ -1,210 +1,338 @@
 <template>
-  <div class="min-h-screen bg-white p-5 font-sans">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 font-sans">
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Form Section (Right Side) -->
-        <div class="lg:col-span-2">
+        <!-- Form Section -->
+        <div class="lg:col-span-3">
+          <!-- Header Section -->
           <div class="text-center mb-8">
-            <div class="flex items-center justify-center gap-4 mb-2">
-              <img src="../assets/orbiz-logo.png" alt="Orbiz Logo" class="w-12 h-12 object-contain" />
-              <h1 class="text-gray-800 text-3xl font-bold">Form Ticketing</h1>
+            <div class="flex items-center justify-center gap-6 mb-4">
+              <div>
+                <img src="../assets/orbiz-logo.png" alt="Orbiz Logo" class="w-12 h-12 object-contain" />
+              </div>
+              <div>
+                <h1 class="text-gray-800 text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text">Form Ticketing</h1>
+                <p class="text-gray-500 text-lg font-medium mt-2">Buat tiket baru untuk kendaraan masuk</p>
+              </div>
             </div>
           </div>
 
-          <form @submit.prevent="submitTicket" class="bg-white p-8 rounded-xl shadow-lg">
-            <!-- Form Grid - 2 Columns -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              
-              <!-- Nama Driver -->
-              <div>
-                <label for="driver_name" class="block mb-2 font-semibold text-gray-700 text-sm">Nama Driver *</label>
-                <input
-                  id="driver_name"
-                  v-model="formData.driver_name"
-                  type="text"
-                  required
-                  placeholder="Masukkan nama driver"
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-base transition-colors duration-200 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
-                />
-              </div>
-
-              <!-- NIK -->
-              <div>
-                <label for="nik" class="block mb-2 font-semibold text-gray-700 text-sm">NIK *</label>
-                <input
-                  id="nik"
-                  v-model="formData.nik"
-                  type="text"
-                  required
-                  placeholder="Contoh: 3201234567890123"
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-base transition-colors duration-200 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
-                  maxlength="16"
-                  @input="onlyNumbers($event, 'nik')"
-                  inputmode="numeric"
-                />
-              </div>
-
-              <!-- Nomor HP -->
-              <div>
-                <label for="handphone_number" class="block mb-2 font-semibold text-gray-700 text-sm">Nomor HP *</label>
-                <input
-                  id="handphone_number"
-                  v-model="formData.handphone_number"
-                  type="text"
-                  required
-                  placeholder="08xxxxxxxxxx"
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-base transition-colors duration-200 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
-                  @input="onlyNumbers($event, 'handphone_number')"
-                  inputmode="numeric"
-                />
-              </div>
-
-              <!-- Jenis Kendaraan -->
-              <div>
-                <label for="truck_type" class="block mb-2 font-semibold text-gray-700 text-sm">Jenis Kendaraan *</label>
-                <input
-                  id="truck_type"
-                  v-model="formData.truck_type"
-                  type="text"
-                  required
-                  placeholder="Contoh: Mitsubishi Canter"
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-base transition-colors duration-200 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
-                />
-              </div>
-            </div>
-
-            <!-- Plat Nomor - 3 Kotak Terpisah (Span 2 Columns) -->
-            <div class="mb-6">
-              <label class="block mb-2 font-semibold text-gray-700 text-sm">Plat Nomor *</label>
-              <div class="grid grid-cols-3 gap-3 max-w-md">
-                <div>
-                  <input
-                    v-model="formData.license_plate_letters1"
-                    type="text"
-                    required
-                    placeholder="B"
-                    maxlength="2"
-                    @input="onlyLetters($event, 'license_plate_letters1')"
-                    class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-base text-center uppercase transition-colors duration-200 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
-                  />
-                  <p class="text-xs text-gray-500 mt-1 text-center">1-2 huruf</p>
+          <form @submit.prevent="submitTicket" class="bg-white p-10 rounded-3xl shadow-2xl border border-gray-100 relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full -translate-y-16 translate-x-16 opacity-60"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-200 rounded-full translate-y-12 -translate-x-12 opacity-60"></div>
+            
+            <div class="relative">
+              <!-- Driver Information Section -->
+              <div class="mb-10">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                  </div>
+                  <h2 class="text-xl font-bold text-gray-800">Informasi Driver</h2>
                 </div>
-                <div>
-                  <input
-                    v-model="formData.license_plate_numbers"
-                    type="text"
-                    required
-                    placeholder="1234"
-                    maxlength="4"
-                    @input="onlyNumbers($event, 'license_plate_numbers')"
-                    inputmode="numeric"
-                    class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-base text-center transition-colors duration-200 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
-                  />
-                  <p class="text-xs text-gray-500 mt-1 text-center">1-4 angka</p>
-                </div>
-                <div>
-                  <input
-                    v-model="formData.license_plate_letters2"
-                    type="text"
-                    required
-                    placeholder="ABC"
-                    maxlength="3"
-                    @input="onlyLetters($event, 'license_plate_letters2')"
-                    class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-base text-center uppercase transition-colors duration-200 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
-                  />
-                  <p class="text-xs text-gray-500 mt-1 text-center">1-3 huruf</p>
-                </div>
-              </div>
-              <p class="text-xs text-gray-500 mt-2">Preview: {{ licensePlatePreview }}</p>
-            </div>
-
-            <!-- Nama Perusahaan (Full Width) -->
-            <div class="mb-6">
-              <label for="principal" class="block mb-2 font-semibold text-gray-700 text-sm">Nama Perusahaan *</label>
-              <input
-                id="principal"
-                v-model="formData.principal"
-                type="text"
-                required
-                placeholder="PT ABC"
-                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-base transition-colors duration-200 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
-              />
-            </div>
-
-            <!-- Document Verification Section -->
-            <div class="my-8 p-6 bg-slate-50 border-2 border-slate-200 rounded-lg">
-              <h3 class="text-gray-800 mb-2 text-lg font-semibold">Verifikasi Dokumen</h3>
-              <p class="text-slate-600 text-sm mb-5">SJ wajib, dan minimal salah satu dari KTP atau SIM harus tersedia</p>
-              
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label class="flex items-center cursor-pointer text-sm text-gray-700 font-medium relative pl-9">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Nama Driver -->
+                  <div class="relative">
+                    <label for="driver_name" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                      </svg>
+                      Nama Driver *
+                    </label>
                     <input
-                      type="checkbox"
-                      v-model="formData.sj_available"
-                      class="absolute opacity-0 cursor-pointer h-0 w-0 peer"
+                      id="driver_name"
+                      v-model="formData.driver_name"
+                      type="text"
                       required
+                      placeholder="Masukkan nama driver"
+                      class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50"
                     />
-                    <span class="absolute left-0 h-5 w-5 bg-white border-2 border-gray-300 rounded transition-all duration-200 peer-hover:border-blue-500 peer-checked:bg-blue-500 peer-checked:border-blue-500 after:content-[''] after:absolute after:hidden after:left-1.5 after:top-0.5 after:w-1.5 after:h-2.5 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
-                    Surat Jalan (SJ)
-                  </label>
-                </div>
+                  </div>
 
-                <div>
-                  <label class="flex items-center cursor-pointer text-sm text-gray-700 font-medium relative pl-9">
+                  <!-- NIK -->
+                  <div class="relative">
+                    <label for="nik" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      </svg>
+                      NIK *
+                    </label>
                     <input
-                      type="checkbox"
-                      v-model="formData.ktp_available"
-                      class="absolute opacity-0 cursor-pointer h-0 w-0 peer"
+                      id="nik"
+                      v-model="formData.nik"
+                      type="text"
+                      required
+                      placeholder="Contoh: 3201234567890123"
+                      class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50"
+                      maxlength="16"
+                      @input="onlyNumbers($event, 'nik')"
+                      inputmode="numeric"
                     />
-                    <span class="absolute left-0 h-5 w-5 bg-white border-2 border-gray-300 rounded transition-all duration-200 peer-hover:border-blue-500 peer-checked:bg-blue-500 peer-checked:border-blue-500 after:content-[''] after:absolute after:hidden after:left-1.5 after:top-0.5 after:w-1.5 after:h-2.5 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
-                    KTP
-                  </label>
-                </div>
+                  </div>
 
-                <div>
-                  <label class="flex items-center cursor-pointer text-sm text-gray-700 font-medium relative pl-9">
+                  <!-- Nomor HP -->
+                  <div class="relative">
+                    <label for="handphone_number" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                      </svg>
+                      Nomor HP *
+                    </label>
                     <input
-                      type="checkbox"
-                      v-model="formData.sim_available"
-                      class="absolute opacity-0 cursor-pointer h-0 w-0 peer"
+                      id="handphone_number"
+                      v-model="formData.handphone_number"
+                      type="text"
+                      required
+                      placeholder="08xxxxxxxxxx"
+                      class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50"
+                      @input="onlyNumbers($event, 'handphone_number')"
+                      inputmode="numeric"
                     />
-                    <span class="absolute left-0 h-5 w-5 bg-white border-2 border-gray-300 rounded transition-all duration-200 peer-hover:border-blue-500 peer-checked:bg-blue-500 peer-checked:border-blue-500 after:content-[''] after:absolute after:hidden after:left-1.5 after:top-0.5 after:w-1.5 after:h-2.5 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
-                    SIM
-                  </label>
+                  </div>
+
+                  <!-- Jenis Kendaraan -->
+                  <div class="relative">
+                    <label for="truck_type" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                      </svg>
+                      Jenis Kendaraan *
+                    </label>
+                    <input
+                      id="truck_type"
+                      v-model="formData.truck_type"
+                      type="text"
+                      required
+                      placeholder="Contoh: Mitsubishi Canter"
+                      class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <button 
-              type="submit" 
-              :disabled="isSubmitting"
-              class="w-full py-4 bg-blue-500 text-white border-none rounded-lg text-lg font-semibold cursor-pointer transition-colors duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {{ isSubmitting ? 'Memproses...' : 'Buat Tiket' }}
-            </button>
+              <!-- Vehicle Information Section -->
+              <div class="mb-10">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-xl">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                    </svg>
+                  </div>
+                  <h2 class="text-xl font-bold text-gray-800">Informasi Kendaraan</h2>
+                </div>
+
+                <!-- Plat Nomor -->
+                <div class="mb-8">
+                  <label class="block mb-4 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Plat Nomor *
+                  </label>
+                  <div class="grid grid-cols-3 gap-4 max-w-lg">
+                    <div class="relative">
+                      <input
+                        v-model="formData.license_plate_letters1"
+                        type="text"
+                        required
+                        placeholder="B"
+                        maxlength="2"
+                        @input="onlyLetters($event, 'license_plate_letters1')"
+                        class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-center uppercase transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
+                      />
+                      <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-2 huruf</p>
+                    </div>
+                    <div class="relative">
+                      <input
+                        v-model="formData.license_plate_numbers"
+                        type="text"
+                        required
+                        placeholder="1234"
+                        maxlength="4"
+                        @input="onlyNumbers($event, 'license_plate_numbers')"
+                        inputmode="numeric"
+                        class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base text-center transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
+                      />
+                      <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-4 angka</p>
+                    </div>
+                    <div class="relative">
+                      <input
+                        v-model="formData.license_plate_letters2"
+                        type="text"
+                        required
+                        placeholder="ABC"
+                        maxlength="3"
+                        @input="onlyLetters($event, 'license_plate_letters2')"
+                        class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base text-center uppercase transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
+                      />
+                      <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-3 huruf</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Company Information Section -->
+              <div class="mb-10">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                  </div>
+                  <h2 class="text-xl font-bold text-gray-800">Informasi Perusahaan</h2>
+                </div>
+
+                <div class="relative">
+                  <label for="principal" class="mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    Nama Perusahaan *
+                  </label>
+                  <input
+                    id="principal"
+                    v-model="formData.principal"
+                    type="text"
+                    required
+                    placeholder="PT ABC"
+                    class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50"
+                  />
+                </div>
+              </div>
+
+              <!-- Document Verification Section -->
+              <div class="mb-10">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                  <h2 class="text-xl font-bold text-gray-800">Verifikasi Dokumen</h2>
+                </div>
+
+                <div class="p-8 bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-2xl">
+                  <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg">
+                      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                      </svg>
+                    </div>
+                    <p class="text-amber-800 text-sm font-bold">SJ wajib, dan minimal salah satu dari KTP atau SIM harus tersedia</p>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="relative">
+                      <label class="flex items-center cursor-pointer text-sm text-gray-700 font-semibold relative pl-12 p-4 bg-white rounded-xl border-2 border-gray-200 transition-all duration-300 hover:border-green-300 hover:shadow-lg has-[:checked]:border-green-500 has-[:checked]:bg-green-50 has-[:checked]:shadow-lg">
+                        <input
+                          type="checkbox"
+                          v-model="formData.sj_available"
+                          class="absolute opacity-0 cursor-pointer h-0 w-0 peer"
+                          required
+                        />
+                        <span class="absolute left-4 h-6 w-6 bg-white border-2 border-gray-300 rounded-lg transition-all duration-300 peer-hover:border-green-500 peer-checked:bg-green-500 peer-checked:border-green-500 shadow-sm after:content-[''] after:absolute after:hidden after:left-1.5 after:top-1 after:w-2 after:h-3 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
+                        <div class="flex items-center gap-3">
+                          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                          </svg>
+                          <span>Surat Jalan (SJ)</span>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div class="relative">
+                      <label class="flex items-center cursor-pointer text-sm text-gray-700 font-semibold relative pl-12 p-4 bg-white rounded-xl border-2 border-gray-200 transition-all duration-300 hover:border-blue-300 hover:shadow-lg has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:shadow-lg">
+                        <input
+                          type="checkbox"
+                          v-model="formData.ktp_available"
+                          class="absolute opacity-0 cursor-pointer h-0 w-0 peer"
+                        />
+                        <span class="absolute left-4 h-6 w-6 bg-white border-2 border-gray-300 rounded-lg transition-all duration-300 peer-hover:border-blue-500 peer-checked:bg-blue-500 peer-checked:border-blue-500 shadow-sm after:content-[''] after:absolute after:hidden after:left-1.5 after:top-1 after:w-2 after:h-3 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
+                        <div class="flex items-center gap-3">
+                          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
+                          </svg>
+                          <span>KTP</span>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div class="relative">
+                      <label class="flex items-center cursor-pointer text-sm text-gray-700 font-semibold relative pl-12 p-4 bg-white rounded-xl border-2 border-gray-200 transition-all duration-300 hover:border-purple-300 hover:shadow-lg has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50 has-[:checked]:shadow-lg">
+                        <input
+                          type="checkbox"
+                          v-model="formData.sim_available"
+                          class="absolute opacity-0 cursor-pointer h-0 w-0 peer"
+                        />
+                        <span class="absolute left-4 h-6 w-6 bg-white border-2 border-gray-300 rounded-lg transition-all duration-300 peer-hover:border-purple-500 peer-checked:bg-purple-500 peer-checked:border-purple-500 shadow-sm after:content-[''] after:absolute after:hidden after:left-1.5 after:top-1 after:w-2 after:h-3 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
+                        <div class="flex items-center gap-3">
+                          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                          </svg>
+                          <span>SIM</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button 
+                type="submit" 
+                :disabled="isSubmitting"
+                class="w-full py-5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-none rounded-2xl text-lg font-bold cursor-pointer transition-all duration-300 hover:from-blue-600 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl transform hover:-translate-y-1 disabled:transform-none flex items-center justify-center gap-3"
+              >
+                <svg v-if="!isSubmitting" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <svg v-else class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                {{ isSubmitting ? 'Memproses...' : 'Buat Tiket' }}
+              </button>
+            </div>
           </form>
         </div>
       </div>
     </div>
 
     <!-- Success Modal -->
-    <div v-if="showSuccess" class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-5" @click="closeModal">
-      <div class="bg-white p-8 rounded-xl text-center max-w-sm w-full shadow-2xl" @click.stop>
-        <div class="w-15 h-15 bg-emerald-500 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-5">✓</div>
-        <h2 class="mb-5 text-gray-800">Tiket Berhasil Dibuat!</h2>
-        <button @click="closeModal" class="py-3 px-6 bg-blue-500 text-white border-none rounded-lg font-semibold cursor-pointer transition-colors duration-200 hover:bg-blue-600">Tutup</button>
+    <div v-if="showSuccess" class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-5 backdrop-blur-sm" @click="closeModal">
+      <div class="bg-white p-10 rounded-3xl text-center max-w-md w-full shadow-2xl border border-gray-200 transform transition-all duration-300 scale-105" @click.stop>
+        <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-8 shadow-lg animate-bounce">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h2 class="mb-4 text-2xl font-bold text-gray-800">Tiket Berhasil Dibuat!</h2>
+        <p class="mb-8 text-gray-600">Tiket telah berhasil disimpan dalam sistem</p>
+        <button @click="closeModal" class="py-4 px-8 bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none rounded-xl font-semibold cursor-pointer transition-all duration-300 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+          Tutup
+        </button>
       </div>
     </div>
 
     <!-- Error Modal -->
-    <div v-if="errorMessage" class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-5" @click="clearError">
-      <div class="bg-white p-8 rounded-xl text-center max-w-sm w-full shadow-2xl" @click.stop>
-        <div class="w-15 h-15 bg-red-500 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-5">✗</div>
-        <h2 class="mb-5 text-gray-800">Terjadi Kesalahan</h2>
-        <p class="mb-5 text-gray-600">{{ errorMessage }}</p>
-        <button @click="clearError" class="py-3 px-6 bg-blue-500 text-white border-none rounded-lg font-semibold cursor-pointer transition-colors duration-200 hover:bg-blue-600">Tutup</button>
+    <div v-if="errorMessage" class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-5 backdrop-blur-sm" @click="clearError">
+      <div class="bg-white p-10 rounded-3xl text-center max-w-md w-full shadow-2xl border border-gray-200 transform transition-all duration-300" @click.stop>
+        <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-8 shadow-lg">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+        </div>
+        <h2 class="mb-4 text-2xl font-bold text-gray-800">Terjadi Kesalahan</h2>
+        <p class="mb-8 text-gray-600">{{ errorMessage }}</p>
+        <button @click="clearError" class="py-4 px-8 bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none rounded-xl font-semibold cursor-pointer transition-all duration-300 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+          Tutup
+        </button>
       </div>
     </div>
   </div>
