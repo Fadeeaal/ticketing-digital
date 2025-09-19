@@ -13,7 +13,6 @@
               </div>
               <div>
                 <h1 class="text-gray-800 text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text">Form Ticketing</h1>
-                <p class="text-gray-500 text-lg font-medium mt-2">Buat tiket baru untuk kendaraan masuk</p>
               </div>
             </div>
           </div>
@@ -35,7 +34,7 @@
                   <h2 class="text-xl font-bold text-gray-800">Informasi Driver</h2>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <!-- Nama Driver -->
                   <div class="relative">
                     <label for="driver_name" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
@@ -94,25 +93,6 @@
                       inputmode="numeric"
                     />
                   </div>
-
-                  <!-- Jenis Kendaraan -->
-                  <div class="relative">
-                    <label for="truck_type" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
-                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
-                      </svg>
-                      Jenis Kendaraan *
-                    </label>
-                    <input
-                      id="truck_type"
-                      v-model="formData.truck_type"
-                      type="text"
-                      required
-                      placeholder="Contoh: Mitsubishi Canter"
-                      class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50"
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -128,51 +108,90 @@
                   <h2 class="text-xl font-bold text-gray-800">Informasi Kendaraan</h2>
                 </div>
 
-                <!-- Plat Nomor -->
-                <div class="mb-8">
-                  <label class="block mb-4 font-semibold text-gray-700 text-sm flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Plat Nomor *
-                  </label>
-                  <div class="grid grid-cols-3 gap-4 max-w-lg">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  <!-- Jenis Kendaraan -->
+                  <div>
+                    <label for="truck_type" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                      </svg>
+                      Jenis Kendaraan *
+                    </label>
                     <div class="relative">
-                      <input
-                        v-model="formData.license_plate_letters1"
-                        type="text"
+                      <select
+                        id="truck_type"
+                        v-model="formData.truck_type"
                         required
-                        placeholder="B"
-                        maxlength="2"
-                        @input="onlyLetters($event, 'license_plate_letters1')"
-                        class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-center uppercase transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
-                      />
-                      <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-2 huruf</p>
+                        class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50 appearance-none pr-12"
+                      >
+                        <option value="">Pilih Jenis Kendaraan</option>
+                        <option value="Mitsubishi Canter">Mitsubishi Canter</option>
+                        <option value="Isuzu Elf">Isuzu Elf</option>
+                        <option value="Hino Dutro">Hino Dutro</option>
+                        <option value="Toyota Dyna">Toyota Dyna</option>
+                        <option value="Suzuki Carry">Suzuki Carry</option>
+                        <option value="Daihatsu Gran Max">Daihatsu Gran Max</option>
+                        <option value="Mitsubishi L300">Mitsubishi L300</option>
+                        <option value="Isuzu Giga">Isuzu Giga</option>
+                        <option value="Hino Ranger">Hino Ranger</option>
+                        <option value="Lainnya">Lainnya</option>
+                      </select>
+                      <!-- Custom Dropdown Arrow -->
+                      <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                      </div>
                     </div>
-                    <div class="relative">
-                      <input
-                        v-model="formData.license_plate_numbers"
-                        type="text"
-                        required
-                        placeholder="1234"
-                        maxlength="4"
-                        @input="onlyNumbers($event, 'license_plate_numbers')"
-                        inputmode="numeric"
-                        class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base text-center transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
-                      />
-                      <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-4 angka</p>
-                    </div>
-                    <div class="relative">
-                      <input
-                        v-model="formData.license_plate_letters2"
-                        type="text"
-                        required
-                        placeholder="ABC"
-                        maxlength="3"
-                        @input="onlyLetters($event, 'license_plate_letters2')"
-                        class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base text-center uppercase transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
-                      />
-                      <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-3 huruf</p>
+                  </div>
+
+                  <!-- Plat Nomor -->
+                  <div>
+                    <label for="truck_type" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      </svg>
+                      Plat Nomor *
+                    </label>
+                    <div class="grid grid-cols-3 gap-4">
+                      <div class="relative">
+                        <input
+                          v-model="formData.license_plate_letters1"
+                          type="text"
+                          required
+                          placeholder="B"
+                          maxlength="2"
+                          @input="onlyLetters($event, 'license_plate_letters1')"
+                          class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base text-center uppercase transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
+                        />
+                        <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-2 huruf</p>
+                      </div>
+                      <div class="relative">
+                        <input
+                          v-model="formData.license_plate_numbers"
+                          type="text"
+                          required
+                          placeholder="1234"
+                          maxlength="4"
+                          @input="onlyNumbers($event, 'license_plate_numbers')"
+                          inputmode="numeric"
+                          class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base text-center transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
+                        />
+                        <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-4 angka</p>
+                      </div>
+                      <div class="relative">
+                        <input
+                          v-model="formData.license_plate_letters2"
+                          type="text"
+                          required
+                          placeholder="ABC"
+                          maxlength="3"
+                          @input="onlyLetters($event, 'license_plate_letters2')"
+                          class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base text-center uppercase transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-b from-white to-gray-50 font-bold text-lg"
+                        />
+                        <p class="text-xs text-gray-500 mt-2 text-center font-medium">1-3 huruf</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -190,20 +209,46 @@
                 </div>
 
                 <div class="relative">
-                  <label for="principal" class="mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
+                  <label for="principal" class="block mb-3 font-semibold text-gray-700 text-sm flex items-center gap-2">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
                     Nama Perusahaan *
                   </label>
-                  <input
-                    id="principal"
-                    v-model="formData.principal"
-                    type="text"
-                    required
-                    placeholder="PT ABC"
-                    class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50"
-                  />
+                  <div class="relative">
+                    <select
+                      id="principal"
+                      v-model="formData.principal"
+                      required
+                      class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-100 hover:border-gray-300 bg-gradient-to-r from-white to-gray-50 appearance-none pr-12"
+                    >
+                      <option value="">Pilih Perusahaan</option>
+                      <option value="PT Astra International">PT Astra International</option>
+                      <option value="PT Unilever Indonesia">PT Unilever Indonesia</option>
+                      <option value="PT Wings Surya">PT Wings Surya</option>
+                      <option value="PT Indofood Sukses Makmur">PT Indofood Sukses Makmur</option>
+                      <option value="PT Mayora Indah">PT Mayora Indah</option>
+                      <option value="PT Nestle Indonesia">PT Nestle Indonesia</option>
+                      <option value="PT Coca-Cola Indonesia">PT Coca-Cola Indonesia</option>
+                      <option value="PT Danone Indonesia">PT Danone Indonesia</option>
+                      <option value="PT Procter & Gamble Indonesia">PT Procter & Gamble Indonesia</option>
+                      <option value="PT Johnson & Johnson Indonesia">PT Johnson & Johnson Indonesia</option>
+                      <option value="PT Kalbe Farma">PT Kalbe Farma</option>
+                      <option value="PT Sido Muncul">PT Sido Muncul</option>
+                      <option value="PT Tzu Chi Indonesia">PT Tzu Chi Indonesia</option>
+                      <option value="PT Kimia Farma">PT Kimia Farma</option>
+                      <option value="CV Berkah Jaya">CV Berkah Jaya</option>
+                      <option value="CV Maju Mandiri">CV Maju Mandiri</option>
+                      <option value="CV Sejahtera Abadi">CV Sejahtera Abadi</option>
+                      <option value="Lainnya">Lainnya</option>
+                    </select>
+                    <!-- Custom Dropdown Arrow -->
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -339,169 +384,169 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import convex from '../convex'
-import { useRouter } from 'vue-router'
-import { api } from '../../../backend/convex/_generated/api'
+  import { ref, reactive, computed } from 'vue'
+  import convex from '../convex'
+  import { useRouter } from 'vue-router'
+  import { api } from '../../../backend/convex/_generated/api'
 
-const router = useRouter()
+  const router = useRouter()
 
-const formData = reactive({
-  driver_name: '',
-  nik: '',
-  handphone_number: '',
-  license_plate_letters1: '',
-  license_plate_numbers: '',
-  license_plate_letters2: '',
-  truck_type: '',
-  principal: '',
-  sj_available: false,
-  ktp_available: false,
-  sim_available: false
-})
+  const formData = reactive({
+    driver_name: '',
+    nik: '',
+    handphone_number: '',
+    license_plate_letters1: '',
+    license_plate_numbers: '',
+    license_plate_letters2: '',
+    truck_type: '',
+    principal: '',
+    sj_available: false,
+    ktp_available: false,
+    sim_available: false
+  })
 
-const isSubmitting = ref(false)
-const showSuccess = ref(false)
-const errorMessage = ref('')
-const createdTicket = ref(null)
+  const isSubmitting = ref(false)
+  const showSuccess = ref(false)
+  const errorMessage = ref('')
+  const createdTicket = ref(null)
 
-// Computed property untuk preview plat nomor
-const licensePlatePreview = computed(() => {
-  const { license_plate_letters1, license_plate_numbers, license_plate_letters2 } = formData
-  if (!license_plate_letters1 && !license_plate_numbers && !license_plate_letters2) {
-    return 'Contoh: B 1234 ABC'
-  }
-  return `${license_plate_letters1} ${license_plate_numbers} ${license_plate_letters2}`.trim()
-})
-
-// Computed property untuk gabungan plat nomor lengkap
-const fullLicensePlate = computed(() => {
-  return `${formData.license_plate_letters1}${formData.license_plate_numbers}${formData.license_plate_letters2}`
-})
-
-const submitTicket = async () => {
-  try {
-    isSubmitting.value = true
-    errorMessage.value = ''
-
-    // Gabungkan plat nomor dan hanya kirim field yang diterima backend
-    const submitData = {
-      driver_name: formData.driver_name,
-      nik: formData.nik,
-      handphone_number: formData.handphone_number,
-      license_plate: fullLicensePlate.value,
-      truck_type: formData.truck_type,
-      principal: formData.principal,
-      sj_available: formData.sj_available,
-      ktp_available: formData.ktp_available,
-      sim_available: formData.sim_available
+  // Computed property untuk preview plat nomor
+  const licensePlatePreview = computed(() => {
+    const { license_plate_letters1, license_plate_numbers, license_plate_letters2 } = formData
+    if (!license_plate_letters1 && !license_plate_numbers && !license_plate_letters2) {
+      return 'Contoh: B 1234 ABC'
     }
+    return `${license_plate_letters1} ${license_plate_numbers} ${license_plate_letters2}`.trim()
+  })
 
-    console.log('Form data:', submitData) // Debug log
+  // Computed property untuk gabungan plat nomor lengkap
+  const fullLicensePlate = computed(() => {
+    return `${formData.license_plate_letters1}${formData.license_plate_numbers}${formData.license_plate_letters2}`
+  })
 
-    // Validate all documents are checked
-    if (!formData.sj_available || (!formData.ktp_available && !formData.sim_available)) {
-      throw new Error('Dokumen SJ wajib tersedia, dan setidaknya salah satu dari KTP atau SIM harus tersedia sebelum melanjutkan')
-    }
-
-    // Validate license plate parts
-    if (!formData.license_plate_letters1 || !formData.license_plate_numbers || !formData.license_plate_letters2) {
-      throw new Error('Plat nomor harus diisi lengkap (huruf-angka-huruf)')
-    }
-
-    // Test connection first
-    console.log('Convex URL:', import.meta.env.VITE_CONVEX_URL)
-
-    // Call Convex mutation with direct HTTP call as fallback
-    let result
+  const submitTicket = async () => {
     try {
-      // Try direct API call first
-      const response = await fetch(`${import.meta.env.VITE_CONVEX_URL}/api/create-ticket`.replace('.convex.cloud', '.convex.site'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData)
-      })
+      isSubmitting.value = true
+      errorMessage.value = ''
 
-      const data = await response.json()
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Server error')
+      // Gabungkan plat nomor dan hanya kirim field yang diterima backend
+      const submitData = {
+        driver_name: formData.driver_name,
+        nik: formData.nik,
+        handphone_number: formData.handphone_number,
+        license_plate: fullLicensePlate.value,
+        truck_type: formData.truck_type,
+        principal: formData.principal,
+        sj_available: formData.sj_available,
+        ktp_available: formData.ktp_available,
+        sim_available: formData.sim_available
+      }
+
+      console.log('Form data:', submitData) // Debug log
+
+      // Validate all documents are checked
+      if (!formData.sj_available || (!formData.ktp_available && !formData.sim_available)) {
+        throw new Error('Dokumen SJ wajib tersedia, dan setidaknya salah satu dari KTP atau SIM harus tersedia sebelum melanjutkan')
+      }
+
+      // Validate license plate parts
+      if (!formData.license_plate_letters1 || !formData.license_plate_numbers || !formData.license_plate_letters2) {
+        throw new Error('Plat nomor harus diisi lengkap (huruf-angka-huruf)')
+      }
+
+      // Test connection first
+      console.log('Convex URL:', import.meta.env.VITE_CONVEX_URL)
+
+      // Call Convex mutation with direct HTTP call as fallback
+      let result
+      try {
+        // Try direct API call first
+        const response = await fetch(`${import.meta.env.VITE_CONVEX_URL}/api/create-ticket`.replace('.convex.cloud', '.convex.site'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(submitData)
+        })
+
+        const data = await response.json()
+        
+        if (!data.success) {
+          throw new Error(data.error || 'Server error')
+        }
+        
+        result = data.data
+      } catch (fetchError) {
+        console.error('Direct API failed, trying Convex client:', fetchError)
+        // Fallback to Convex client
+        result = await convex.mutation(api.tickets.createTicket, submitData)
       }
       
-      result = data.data
-    } catch (fetchError) {
-      console.error('Direct API failed, trying Convex client:', fetchError)
-      // Fallback to Convex client
-      result = await convex.mutation(api.tickets.createTicket, submitData)
+      createdTicket.value = result
+      showSuccess.value = true
+      
+      // Reset form
+      formData.driver_name = ''
+      formData.nik = ''
+      formData.handphone_number = ''
+      formData.license_plate_letters1 = ''
+      formData.license_plate_numbers = ''
+      formData.license_plate_letters2 = ''
+      formData.truck_type = ''
+      formData.principal = ''
+      formData.sj_available = false
+      formData.ktp_available = false
+      formData.sim_available = false
+
+      // Navigate to ticket list after success
+      router.push('/')
+
+    } catch (error: unknown) {
+      console.error('Submit error:', error)
+      if (error instanceof Error) {
+        errorMessage.value = error.message || 'Gagal membuat tiket. Silahkan coba lagi.'
+      } else {
+        errorMessage.value = 'Gagal membuat tiket. Silahkan coba lagi.'
+      }
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  const closeModal = () => {
+    showSuccess.value = false
+    createdTicket.value = null
+  }
+
+  const clearError = () => {
+    errorMessage.value = ''
+  }
+
+  const onlyNumbers = (event: Event, field: string) => {
+    const target = event.target as HTMLInputElement
+    const value = target.value.replace(/[^0-9]/g, '') // Hapus semua karakter selain angka
+    
+    if (field === 'nik') {
+      formData.nik = value
+    } else if (field === 'handphone_number') {
+      formData.handphone_number = value
+    } else if (field === 'license_plate_numbers') {
+      formData.license_plate_numbers = value
     }
     
-    createdTicket.value = result
-    showSuccess.value = true
+    target.value = value // Update input value
+  }
+
+  const onlyLetters = (event: Event, field: string) => {
+    const target = event.target as HTMLInputElement
+    const value = target.value.replace(/[^A-Za-z]/g, '').toUpperCase() // Hapus semua karakter selain huruf dan ubah ke uppercase
     
-    // Reset form
-    formData.driver_name = ''
-    formData.nik = ''
-    formData.handphone_number = ''
-    formData.license_plate_letters1 = ''
-    formData.license_plate_numbers = ''
-    formData.license_plate_letters2 = ''
-    formData.truck_type = ''
-    formData.principal = ''
-    formData.sj_available = false
-    formData.ktp_available = false
-    formData.sim_available = false
-
-    // Navigate to ticket list after success
-    router.push('/')
-
-  } catch (error: unknown) {
-    console.error('Submit error:', error)
-    if (error instanceof Error) {
-      errorMessage.value = error.message || 'Gagal membuat tiket. Silahkan coba lagi.'
-    } else {
-      errorMessage.value = 'Gagal membuat tiket. Silahkan coba lagi.'
+    if (field === 'license_plate_letters1') {
+      formData.license_plate_letters1 = value
+    } else if (field === 'license_plate_letters2') {
+      formData.license_plate_letters2 = value
     }
-  } finally {
-    isSubmitting.value = false
+    
+    target.value = value // Update input value
   }
-}
-
-const closeModal = () => {
-  showSuccess.value = false
-  createdTicket.value = null
-}
-
-const clearError = () => {
-  errorMessage.value = ''
-}
-
-const onlyNumbers = (event: Event, field: string) => {
-  const target = event.target as HTMLInputElement
-  const value = target.value.replace(/[^0-9]/g, '') // Hapus semua karakter selain angka
-  
-  if (field === 'nik') {
-    formData.nik = value
-  } else if (field === 'handphone_number') {
-    formData.handphone_number = value
-  } else if (field === 'license_plate_numbers') {
-    formData.license_plate_numbers = value
-  }
-  
-  target.value = value // Update input value
-}
-
-const onlyLetters = (event: Event, field: string) => {
-  const target = event.target as HTMLInputElement
-  const value = target.value.replace(/[^A-Za-z]/g, '').toUpperCase() // Hapus semua karakter selain huruf dan ubah ke uppercase
-  
-  if (field === 'license_plate_letters1') {
-    formData.license_plate_letters1 = value
-  } else if (field === 'license_plate_letters2') {
-    formData.license_plate_letters2 = value
-  }
-  
-  target.value = value // Update input value
-}
 </script>
