@@ -11,11 +11,14 @@ export default defineSchema({
 
   // Tickets table dengan reference ke driver
   tickets: defineTable({
+    activity_type: v.boolean(), // inbound/outbound
+
     // Transport Info
     license_plate: v.string(),
     truck_type: v.string(),
     driver_id: v.id("driver"),
-    principal: v.string(),
+    principal: v.optional(v.string()),
+    vendor: v.optional(v.string()),
 
     // Document verification
     sj_available: v.boolean(),
