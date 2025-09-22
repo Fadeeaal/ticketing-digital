@@ -31,7 +31,7 @@ export default defineSchema({
     arrival_time: v.string(),
     start_unloading_time: v.optional(v.string()),
     finish_unloading_time: v.optional(v.string()),
-    driver_departure_time: v.optional(v.string()),
+    departure_time: v.optional(v.string()),
   })
   .index("by_inbound_date", ["inbound_date"])
   .index("by_status", ["ticket_status"])

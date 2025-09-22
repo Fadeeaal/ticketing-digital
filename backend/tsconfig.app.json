@@ -27,5 +27,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["convex/**/*.ts", "convex/**/*.tsx", "index.ts"]
 }

@@ -1,0 +1,570 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50 p-6 font-sans">
+    <div class="max-w-full mx-auto">
+      <!-- Header -->
+      <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-purple-100">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-6">
+            <div>
+              <img src="../assets/orbiz-logo.png" alt="Orbiz Logo" class="w-20 h-20 object-contain" />
+            </div>
+            <div>
+              <h1 class="text-gray-800 text-3xl font-bold bg-gradient-to-r from-[#6c366a] to-purple-600 bg-clip-text text-transparent">
+                Daftar Ticket Hari Ini
+              </h1>
+              <p class="text-gray-500 text-lg font-medium mt-1">{{ currentDate }}</p>
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <button 
+              @click="refreshTickets"
+              :disabled="loading"
+              class="px-6 py-3 bg-gradient-to-r from-[#6c366a] to-purple-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-[#6c366a] disabled:from-gray-400 disabled:to-gray-500 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none flex items-center gap-2"
+            >
+              <svg v-if="!loading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              <svg v-else class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              {{ loading ? 'Memuat...' : 'Refresh' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-[#6c366a]">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-3xl font-bold text-[#6c366a] mb-1">{{ tickets.length }}</div>
+              <div class="text-sm font-medium text-gray-500">Total Ticket</div>
+            </div>
+            <div class="p-3 bg-gradient-to-br from-purple-100 to-[#6c366a]/20 rounded-xl">
+              <svg class="w-6 h-6 text-[#6c366a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-blue-400">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-3xl font-bold text-blue-600 mb-1">{{ getTicketsByStatus(0).length }}</div>
+              <div class="text-sm font-medium text-gray-500">Tiba di Lokasi</div>
+            </div>
+            <div class="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-orange-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-orange-400">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-3xl font-bold text-orange-600 mb-1">{{ getTicketsByStatus(1).length + getTicketsByStatus(2).length }}</div>
+              <div class="text-sm font-medium text-gray-500">Sedang Proses</div>
+            </div>
+            <div class="p-3 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl">
+              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-green-400">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-3xl font-bold text-green-600 mb-1">{{ getTicketsByStatus(3).length }}</div>
+              <div class="text-sm font-medium text-gray-500">Selesai</div>
+            </div>
+            <div class="p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="bg-white rounded-2xl shadow-lg p-16 text-center border border-purple-100">
+        <div class="flex flex-col items-center">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-[#6c366a] mb-6"></div>
+          <div class="text-gray-500 text-lg font-medium">Memuat data ticket...</div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="tickets.length === 0" class="bg-white rounded-2xl shadow-lg p-16 text-center border border-purple-100">
+        <div class="flex flex-col items-center">
+          <div class="p-6 bg-gradient-to-br from-purple-100 to-[#6c366a]/20 rounded-full mb-6">
+            <svg class="w-16 h-16 text-[#6c366a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">Belum Ada Ticket Hari Ini</h3>
+          <p class="text-gray-500 text-lg mb-8 max-w-md">Belum ada ticket yang dibuat untuk hari ini</p>
+          <button 
+            @click="$router.push('/create-ticket')"
+            class="px-8 py-4 bg-gradient-to-r from-[#6c366a] to-purple-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-[#6c366a] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-3"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Buat Ticket Pertama
+          </button>
+        </div>
+      </div>
+
+      <!-- Tickets Table -->
+      <div v-else class="bg-white rounded-2xl shadow-xl overflow-hidden border border-purple-100">
+        <div class="px-8 py-6 bg-gradient-to-r from-[#6c366a] to-purple-600 border-b border-purple-200">
+          <h2 class="text-xl font-bold text-white flex items-center gap-3">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            Daftar Ticket
+          </h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gradient-to-r from-purple-50 to-[#6c366a]/10">
+              <tr>
+                <th class="px-6 py-4 text-center text-xs font-bold text-[#6c366a] uppercase tracking-wider">Driver</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-[#6c366a] uppercase tracking-wider">Kendaraan</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-[#6c366a] uppercase tracking-wider">Aktivitas</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-[#6c366a] uppercase tracking-wider">Perusahaan</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-[#6c366a] uppercase tracking-wider">Dokumen</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-[#6c366a] uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-[#6c366a] uppercase tracking-wider">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <tr v-for="ticket in tickets" :key="ticket._id" class="hover:bg-gradient-to-r hover:from-purple-50 hover:to-[#6c366a]/5 transition-all duration-200 group">
+                <!-- Driver Info -->
+                <td class="px-6 py-6 whitespace-nowrap">
+                  <div class="flex items-center gap-4">
+                    <div class="p-2 bg-gradient-to-br from-blue-100 to-blue-200 group-hover:from-[#6c366a]/20 group-hover:to-purple-200 rounded-xl transition-all duration-200">
+                      <svg class="w-6 h-6 text-blue-600 group-hover:text-[#6c366a] transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-gray-900 group-hover:text-[#6c366a] transition-colors duration-200">{{ ticket.driver?.name }}</div>
+                      <div class="text-xs text-gray-500 mt-1">NIK: {{ ticket.driver?.nik }}</div>
+                      <div class="text-xs text-gray-500">HP: {{ ticket.driver?.handphone_number }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Vehicle Info -->
+                <td class="px-6 py-6 whitespace-nowrap">
+                  <div class="flex items-center gap-4">
+                    <div class="p-2 bg-gradient-to-br from-green-100 to-green-200 group-hover:from-[#6c366a]/20 group-hover:to-purple-200 rounded-xl transition-all duration-200">
+                      <svg class="w-6 h-6 text-green-600 group-hover:text-[#6c366a] transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-gray-900 group-hover:text-[#6c366a] transition-colors duration-200">{{ ticket.license_plate }}</div>
+                      <div class="text-xs text-gray-500 mt-1">{{ ticket.truck_type }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Activity Type -->
+                <td class="px-6 py-6 whitespace-nowrap text-center">
+                  <div class="text-sm font-bold text-gray-900 group-hover:text-[#6c366a] transition-colors duration-200">{{ getActivityType(ticket.activity_type) }}</div>
+                </td>
+
+                <!-- Company -->
+                <td class="px-6 py-6 whitespace-nowrap text-center">
+                  <div class="text-sm font-medium text-gray-900 group-hover:text-[#6c366a] transition-colors duration-200">{{ getCompany(ticket) }}</div>
+                </td>
+
+                <!-- Documents -->
+                <td class="px-6 py-6 whitespace-nowrap text-center">
+                  <div class="inline-flex flex-wrap gap-2 justify-center">
+                    <span v-if="ticket.sj_available" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 border border-green-200">
+                      SJ
+                    </span>
+                    <span v-if="ticket.ktp_available" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-200">
+                      KTP
+                    </span>
+                    <span v-if="ticket.sim_available" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-[#6c366a]/20 to-purple-200 text-[#6c366a] border border-purple-200">
+                      SIM
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Status -->
+                <td class="px-6 py-6 whitespace-nowrap text-center">
+                  <span :class="getStatusClass(ticket.ticket_status)" class="inline-flex items-center px-4 py-2 rounded-full text-xs font-bold shadow-sm border">
+                    {{ getStatusText(ticket.ticket_status) }}
+                  </span>
+                </td>
+
+                <!-- Action Button -->
+                <td class="px-6 py-6 whitespace-nowrap text-center">
+                  <button 
+                    @click="openTicketModal(ticket)"
+                    class="px-4 py-2 bg-gradient-to-r from-[#6c366a] to-purple-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-[#6c366a] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2 mx-auto"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    Detail
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ticket Detail Modal -->
+      <div v-if="selectedTicket" class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-5 backdrop-blur-sm" @click="closeTicketModal">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-purple-200 transform transition-all duration-300" @click.stop>
+          <!-- Modal Header -->
+          <div class="px-8 py-6 bg-gradient-to-r from-[#6c366a] to-purple-600 rounded-t-2xl">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Detail Ticket
+              </h2>
+              <button @click="closeTicketModal" class="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="p-8">
+            <!-- QR Code Section -->
+            <div class="text-center mb-8">
+              <div v-if="selectedTicket.ticket_status < 3" class="mb-4">
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Scan QR Code untuk Update Status!</h3>
+              </div>
+              
+              <div class="flex justify-center">
+                <div v-if="selectedTicket.ticket_status < 3" class="p-6 bg-gradient-to-br from-purple-50 to-[#6c366a]/10 rounded-2xl border-2 border-purple-200 shadow-lg">
+                  <qrcode-vue :value="getQRUrl(selectedTicket._id, selectedTicket.ticket_status)" :size="150" />
+                </div>
+                <div v-else class="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border-2 border-green-200 text-green-600 font-bold text-lg">
+                  AKTIVITAS SUDAH SELESAI
+                </div>
+              </div>
+            </div>
+
+            <!-- Ticket Information -->
+            <div class="space-y-6">
+              <!-- Driver Information -->
+              <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                <h4 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                  Informasi Driver
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span class="font-semibold text-blue-800">Nama:</span>
+                    <span class="ml-2 text-blue-700">{{ selectedTicket.driver?.name }}</span>
+                  </div>
+                  <div>
+                    <span class="font-semibold text-blue-800">NIK:</span>
+                    <span class="ml-2 text-blue-700">{{ selectedTicket.driver?.nik }}</span>
+                  </div>
+                  <div class="md:col-span-2">
+                    <span class="font-semibold text-blue-800">No. HP:</span>
+                    <span class="ml-2 text-blue-700">{{ selectedTicket.driver?.handphone_number }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Vehicle Information -->
+              <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+                <h4 class="text-lg font-bold text-green-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                  </svg>
+                  Informasi Kendaraan
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span class="font-semibold text-green-800">Plat Nomor:</span>
+                    <span class="ml-2 text-green-700">{{ selectedTicket.license_plate }}</span>
+                  </div>
+                  <div>
+                    <span class="font-semibold text-green-800">Jenis Truk:</span>
+                    <span class="ml-2 text-green-700">{{ selectedTicket.truck_type }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Activity Information -->
+              <div class="bg-gradient-to-r from-[#6c366a]/10 to-purple-100 rounded-xl p-6 border border-purple-200">
+                <h4 class="text-lg font-bold text-[#6c366a] mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                  Informasi Aktivitas
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span class="font-semibold text-[#6c366a]">Jenis Aktivitas:</span>
+                    <span class="ml-2 text-purple-700">{{ getActivityType(selectedTicket.activity_type) }}</span>
+                  </div>
+                  <div>
+                    <span class="font-semibold text-[#6c366a]">Perusahaan:</span>
+                    <span class="ml-2 text-purple-700">{{ getCompany(selectedTicket) }}</span>
+                  </div>
+                  <div>
+                    <span class="font-semibold text-[#6c366a]">Tanggal:</span>
+                    <span class="ml-2 text-purple-700">{{ selectedTicket.inbound_date }}</span>
+                  </div>
+                  <div>
+                    <span class="font-semibold text-[#6c366a]">Status:</span>
+                    <span class="ml-2" :class="getStatusTextColor(selectedTicket.ticket_status)">{{ getStatusText(selectedTicket.ticket_status) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Documents -->
+              <div class="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+                <h4 class="text-lg font-bold text-orange-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  Dokumen yang Tersedia
+                </h4>
+                <div class="flex flex-wrap gap-3">
+                  <span v-if="selectedTicket.sj_available" class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 border border-green-300">
+                    ✓ Surat Jalan (SJ)
+                  </span>
+                  <span v-if="selectedTicket.ktp_available" class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-300">
+                    ✓ KTP
+                  </span>
+                  <span v-if="selectedTicket.sim_available" class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-[#6c366a]/20 to-purple-200 text-[#6c366a] border border-purple-300">
+                    ✓ SIM
+                  </span>
+                </div>
+              </div>
+
+              <!-- Timeline -->
+              <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Timeline Aktivitas
+                </h4>
+                <div class="space-y-3 text-sm">
+                  <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span class="font-semibold text-gray-700">Waktu Tiba:</span>
+                    <span class="text-gray-600">{{ selectedTicket.arrival_time || '-' }}</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full" :class="selectedTicket.start_unloading_time ? 'bg-orange-500' : 'bg-gray-300'"></div>
+                    <span class="font-semibold text-gray-700">Mulai Unloading:</span>
+                    <span class="text-gray-600">{{ selectedTicket.start_unloading_time || '-' }}</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full" :class="selectedTicket.finish_unloading_time ? 'bg-purple-500' : 'bg-gray-300'"></div>
+                    <span class="font-semibold text-gray-700">Selesai Unloading:</span>
+                    <span class="text-gray-600">{{ selectedTicket.finish_unloading_time || '-' }}</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full" :class="selectedTicket.departure_time ? 'bg-green-500' : 'bg-gray-300'"></div>
+                    <span class="font-semibold text-gray-700">Waktu Berangkat:</span>
+                    <span class="text-gray-600">{{ selectedTicket.departure_time || '-' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Modal -->
+      <div v-if="errorMessage" class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-5 backdrop-blur-sm" @click="clearError">
+        <div class="bg-white p-8 rounded-2xl text-center max-w-sm w-full shadow-2xl border border-purple-200 transform transition-all duration-300" @click.stop>
+          <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+          </div>
+          <h2 class="mb-4 text-xl font-bold text-gray-800">Terjadi Kesalahan</h2>
+          <p class="mb-6 text-gray-600">{{ errorMessage }}</p>
+          <button @click="clearError" class="py-3 px-8 bg-gradient-to-r from-[#6c366a] to-purple-600 text-white border-none rounded-xl font-semibold cursor-pointer transition-all duration-300 hover:from-purple-700 hover:to-[#6c366a] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            Tutup
+          </button>
+        </div>
+      </div>
+
+      <!-- Success Modal -->
+      <div v-if="successMessage" class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-5 backdrop-blur-sm" @click="clearSuccess">
+        <div class="bg-white p-8 rounded-2xl text-center max-w-sm w-full shadow-2xl border border-purple-200 transform transition-all duration-300" @click.stop>
+          <div class="w-16 h-16 bg-gradient-to-br from-[#6c366a] to-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h2 class="mb-4 text-xl font-bold text-gray-800">Berhasil</h2>
+          <p class="mb-6 text-gray-600">{{ successMessage }}</p>
+          <button @click="clearSuccess" class="py-3 px-8 bg-gradient-to-r from-[#6c366a] to-purple-600 text-white border-none rounded-xl font-semibold cursor-pointer transition-all duration-300 hover:from-purple-700 hover:to-[#6c366a] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import convex from '../convex'
+import QrcodeVue from 'qrcode.vue'
+import type { Ticket } from '../interface/Ticket'
+
+const tickets = ref<Ticket[]>([])
+const loading = ref(true)
+const errorMessage = ref('')
+const successMessage = ref('')
+const selectedTicket = ref<Ticket | null>(null)
+import { api } from '../../../backend/convex/_generated/api'
+
+const currentDate = computed(() => {
+  const today = new Date()
+  return today.toLocaleDateString('id-ID', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  })
+})
+
+const getCompany = (ticket: Ticket): string => {
+  if (ticket.activity_type === true) return ticket.principal
+  if (ticket.activity_type === false) return ticket.vendor
+  return 'Status Tidak Diketahui'
+}
+
+const getActivityType = (status: boolean | string): string => {
+  if (status === true || status === 'true') return 'Inbound'
+  if (status === false || status === 'false') return 'Outbound'
+  return 'Status Tidak Diketahui'
+}
+
+// Generate QR URL based on current status
+const getQRUrl = (ticketId: string, currentStatus: number): string => {
+  const nextStep = currentStatus + 1 // Next step to execute
+  return `http://10.255.82.73:5173/scan?ticketId=${ticketId}&step=${nextStep}`
+}
+
+// Get step label for display
+const getStepLabel = (currentStatus: number): string => {
+  const stepLabels: Record<number, string> = {
+    0: 'Step 1: Mulai Unloading',
+    1: 'Step 2: Selesai Unloading', 
+    2: 'Step 3: Driver Berangkat'
+  }
+  return stepLabels[currentStatus] || 'Proses Selesai'
+}
+
+const loadTodayTickets = async () => {
+  try {
+    loading.value = true
+    errorMessage.value = ''
+
+    // Ambil data ticket hari ini langsung dari Convex API (tanpa fetch URL)
+    const result = await convex.query(api.tickets.listTodayTickets, {})
+    // Ensure principal is always a string
+    tickets.value = result.map((ticket: any) => ({
+      ...ticket,
+      principal: ticket.principal ?? ''
+    }))
+
+  } catch (error: any) {
+    console.error('Failed to load tickets:', error)
+    errorMessage.value = error.message || 'Gagal memuat data ticket'
+  } finally {
+    loading.value = false
+  }
+}
+
+const refreshTickets = () => {
+  loadTodayTickets()
+}
+
+const getTicketsByStatus = (status: number) => {
+  return tickets.value.filter((ticket: Ticket) => ticket.ticket_status === status)
+}
+
+const getStatusText = (status: number): string => {
+  const statusMap: Record<number, string> = {
+    0: 'Tiba di Lokasi',
+    1: 'Sedang Unloading',
+    2: 'Selesai Unloading',
+    3: 'Inbound selesai'
+  }
+  return statusMap[status] || 'Status Tidak Diketahui'
+}
+
+const getStatusClass = (status: number): string => {
+  const statusClasses: Record<number, string> = {
+    0: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-300',
+    1: 'bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800 border-orange-300',
+    2: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300',
+    3: 'bg-gradient-to-r from-[#6c366a]/20 to-purple-200 text-[#6c366a] border-purple-300'
+  }
+  return statusClasses[status] || 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-300'
+}
+
+const getStatusTextColor = (status: number): string => {
+  const statusColors: Record<number, string> = {
+    0: 'text-gray-700 font-semibold',
+    1: 'text-orange-700 font-semibold',
+    2: 'text-blue-700 font-semibold',
+    3: 'text-green-700 font-semibold'
+  }
+  return statusColors[status] || 'text-gray-700 font-semibold'
+}
+
+const openTicketModal = (ticket: Ticket) => {
+  selectedTicket.value = ticket
+}
+
+const closeTicketModal = () => {
+  selectedTicket.value = null
+}
+
+const clearError = () => {
+  errorMessage.value = ''
+}
+
+const clearSuccess = () => {
+  successMessage.value = ''
+}
+
+onMounted(() => {
+  loadTodayTickets()
+})
+</script>

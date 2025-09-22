@@ -120,7 +120,7 @@ export const createTicket = mutation({
       arrival_time,
       start_unloading_time: undefined,
       finish_unloading_time: undefined,
-      driver_departure_time: undefined,
+      departure_time: undefined,
     });
 
     // Return ticket dengan data driver
@@ -269,7 +269,7 @@ export const setDriverDepartureTime = mutation({
 
     await ctx.db.patch(args.ticketId, { 
       ticket_status: 3, 
-      driver_departure_time: getWibTimeString() 
+      departure_time: getWibTimeString() 
     });
 
     const updatedTicket = await ctx.db.get(args.ticketId);

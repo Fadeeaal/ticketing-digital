@@ -1,17 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import CreateTicketForm from '../components/CreateTicketForm.vue'
-import TicketListPage from '../components/TicketListPage.vue'
-import ScanTicketStatus from '../components/ScanTicketStatus.vue'
+import CreateTicketForm from '../pages/CreateTicketForm.vue'
+import TicketListPage from '../pages/TicketListPage.vue'
+import ScanTicketStatus from '../pages/ScanTicketStatus.vue'
 
 const routes = [
   {
     path: '/',
+    redirect: '/list-tickets'
+  },
+  {
+    path: '/create-ticket',
     name: 'CreateTicket',
     component: CreateTicketForm
   },
-  { path: '/scan', component: ScanTicketStatus },
+  { 
+    path: '/scan', 
+    component: ScanTicketStatus 
+  },
   {
-    path: '/tickets',
+    path: '/list-tickets',
     name: 'TicketList',
     component: TicketListPage
   }
