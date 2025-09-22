@@ -3,7 +3,13 @@
     <h2 class="text-2xl font-bold mb-4">Update Status Ticket</h2>
     <!-- Jika ticketId dari URL, tampilkan info dan proses otomatis -->
     <div v-if="ticketIdFromUrl" class="text-center">
-      <div class="mb-2">Ticket ID: <span class="font-mono">{{ ticketIdFromUrl }}</span></div>
+      <div v-if="loadingTicket" class="text-blue-600 mb-4">Memuat data ticket...</div>
+      <div v-if="ticketData && !loadingTicket" class="mb-4 p-4 bg-white rounded-lg shadow border">
+        <div class="text-lg font-semibold mb-2"> {{ ticketData.activity_type ? 'Inbound' : 'Outbound' }} </div>
+        <div class="text-xl font-bold text-blue-600"> {{ getCompanyName(ticketData) }} </div>
+        <div class="text-sm text-gray-600 mt-2"> Driver: {{ ticketData.driver?.name || 'N/A' }} </div>
+        <div class="text-sm text-gray-600"> Plat: {{ ticketData.license_plate || 'N/A' }} </div>
+      </div>
       <div v-if="processing" class="text-blue-600">Memproses...</div>
       <div v-if="successMessage" class="text-green-600">{{ successMessage }}</div>
       <div v-if="errorMessage" class="text-red-600">{{ errorMessage }}</div>
@@ -15,29 +21,11 @@
         Kembali ke Daftar Ticket
       </button>
     </div>
-    <!-- Jika tidak ada ticketId di URL, tampilkan scanner -->
-    <div v-else>
-      <qrcode-stream @decode="onDecode" @init="onInit" class="mb-4" />
-      <div v-if="scanResult" class="mt-4 text-center">
-        <div class="mb-2">Ticket ID: <span class="font-mono">{{ scanResult }}</span></div>
-        <button
-          @click="processScan(scanResult)"
-          :disabled="processing"
-          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          {{ processing ? 'Memproses...' : 'Update Status Ticket' }}
-        </button>
-        <div v-if="successMessage" class="mt-2 text-green-600">{{ successMessage }}</div>
-        <div v-if="errorMessage" class="mt-2 text-red-600">{{ errorMessage }}</div>
-      </div>
-      <div v-if="errorMessage && !scanResult" class="text-red-600 mt-4">{{ errorMessage }}</div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { QrcodeStream } from 'vue-qrcode-reader'
 import { useRoute, useRouter } from 'vue-router'
 import convex from '../convex'
 import { api } from '../../../backend/convex/_generated/api'
@@ -45,11 +33,45 @@ import type { Id } from '../../../backend/convex/_generated/dataModel'
 
 const scanResult = ref('')
 const processing = ref(false)
+const loadingTicket = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
+const ticketData = ref<any>(null)
 const route = useRoute()
 const router = useRouter()
 const ticketIdFromUrl = ref('')
+
+// Helper function to get company name based on activity type
+const getCompanyName = (ticket: any): string => {
+  if (ticket.activity_type) { // Inbound
+    return ticket.principal || 'Principal tidak tersedia'
+  } else { // Outbound
+    return ticket.vendor || 'Vendor tidak tersedia'
+  }
+}
+
+// Fetch ticket data by ID
+const fetchTicketData = async (ticketId: string) => {
+  try {
+    loadingTicket.value = true
+    errorMessage.value = ''
+    
+    // Get all tickets and find the one with matching ID
+    const allTickets = await convex.query(api.tickets.allTickets, {})
+    const ticket = allTickets.find((t: any) => t._id === ticketId)
+    
+    if (!ticket) {
+      throw new Error('Ticket tidak ditemukan!')
+    }
+    
+    ticketData.value = ticket
+  } catch (e: any) {
+    errorMessage.value = e.message || 'Gagal memuat data ticket'
+    ticketData.value = null
+  } finally {
+    loadingTicket.value = false
+  }
+}
 
 // Simpan status scan terakhir per ticketId di localStorage
 function getScanCount(ticketId: string): number {
@@ -57,18 +79,6 @@ function getScanCount(ticketId: string): number {
 }
 function setScanCount(ticketId: string, count: number) {
   localStorage.setItem('scan-count-' + ticketId, String(count))
-}
-
-const onDecode = (result: string) => {
-  scanResult.value = result
-  errorMessage.value = ''
-  successMessage.value = ''
-}
-
-const onInit = (promise: Promise<void>) => {
-  promise.catch(() => {
-    errorMessage.value = 'Kamera tidak bisa diakses'
-  })
 }
 
 const processScan = async (ticketId: string) => {
@@ -94,15 +104,20 @@ const processScan = async (ticketId: string) => {
     processing.value = false
     return
   }
+  
   // Map ke mutation convex
   const mutationMap = {
     'start-unloading': api.tickets.setStartUnloadingTime,
     'finish-unloading': api.tickets.setFinishUnloadingTime,
     'driver-departure': api.tickets.setDriverDepartureTime
   }
+  
   try {
     await convex.mutation(mutationMap[action], { ticketId: ticketId as Id<"tickets"> })
-    successMessage.value = `Status berhasil diupdate: ${action.replace('-', ' ')}`
+    
+    // Update success message dengan nama perusahaan
+    const companyName = ticketData.value ? getCompanyName(ticketData.value) : 'Perusahaan'
+    successMessage.value = `Status ${companyName} berhasil diupdate: ${action.replace('-', ' ')}`
     setScanCount(ticketId, scanCount)
   } catch (e: any) {
     errorMessage.value = e.message || 'Gagal update status'
@@ -117,11 +132,14 @@ const goToList = () => {
 }
 
 // Jika ada ticketId di URL, langsung proses otomatis
-onMounted(() => {
+onMounted(async () => {
   const urlTicketId = (route.query.ticketId as string) || ''
   if (urlTicketId) {
     ticketIdFromUrl.value = urlTicketId
-    processScan(urlTicketId)
+    await fetchTicketData(urlTicketId)
+    if (ticketData.value) {
+      processScan(urlTicketId)
+    }
   }
 })
 </script>

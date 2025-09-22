@@ -8,10 +8,12 @@ export interface Driver {
 export interface Ticket {
   _id: string;
   _creationTime: number;
+  activity_type: boolean; // T : inbound / F : outbound
   license_plate: string;
   truck_type: string;
   driver_id: string;
   principal: string;
+  vendor: string;
   sj_available: boolean;
   ktp_available: boolean;
   sim_available: boolean;

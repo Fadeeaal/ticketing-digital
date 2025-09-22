@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import CreateTicketForm from '../components/CreateTicketForm.vue'
-import TicketListPage from '../components/TicketListPage.vue'
-import ScanTicketStatus from '../components/ScanTicketStatus.vue'
+import CreateTicketForm from '../pages/CreateTicketForm.vue'
+import TicketListPage from '../pages/TicketListPage.vue'
+import ScanTicketStatus from '../pages/ScanTicketStatus.vue'
 
 const routes = [
   {
