@@ -276,4 +276,105 @@ http.route({
   }),
 });
 
+// Update/Edit ticket (dengan CORS)
+http.route({
+  path: "/api/tickets/update",
+  method: "PUT",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const body = await request.json();
+      
+      // Validasi ticketId
+      if (!body.ticketId) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "ticketId is required" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      const result = await ctx.runMutation(api.tickets.updateTicket, body);
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: result,
+        message: "Ticket berhasil diupdate"
+      }), {
+        status: 200,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: error.message 
+      }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    }
+  }),
+});
+
+// Get single ticket by ID (dengan CORS)
+http.route({
+  path: "/api/tickets/:ticketId",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const url = new URL(request.url);
+      const ticketId = url.pathname.split('/').pop();
+      
+      if (!ticketId) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "ticketId parameter is required" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      const result = await ctx.runQuery(api.tickets.getTicketById, { 
+        ticketId: ticketId as any 
+      });
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: result 
+      }), {
+        status: 200,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: error.message 
+      }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    }
+  }),
+});
+
 export default http;

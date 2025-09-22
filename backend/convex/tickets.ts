@@ -38,6 +38,8 @@ async function createOrGetDriver(ctx: any, args: {
   }
 }
 
+/*-----------------------------------------------------------------------------------------------------*/
+
 // Create ticket dengan schema baru
 export const createTicket = mutation({
   args: {
@@ -212,6 +214,150 @@ export const getTicketsByDate = query({
     );
 
     return ticketsWithDriver;
+  },
+});
+
+export const updateTicket = mutation({
+  args: {
+    ticketId: v.id("tickets"),
+    
+    // Driver info
+    driver_name: v.optional(v.string()),
+    nik: v.optional(v.string()),
+    handphone_number: v.optional(v.string()),
+    
+    // Transport info
+    license_plate: v.optional(v.string()),
+    truck_type: v.optional(v.string()),
+    principal: v.optional(v.string()),
+    vendor: v.optional(v.string()),
+
+    // Document verification
+    sj_available: v.optional(v.boolean()),
+    ktp_available: v.optional(v.boolean()),
+    sim_available: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    // Cari ticket yang akan diupdate
+    const existingTicket = await ctx.db.get(args.ticketId);
+    if (!existingTicket) {
+      throw new Error("Ticket tidak ditemukan!");
+    }
+
+    // Validasi NIK jika diubah
+    if (args.nik && (args.nik.length !== 16 || !/^\d{16}$/.test(args.nik))) {
+      throw new Error("NIK harus 16 digit angka!");
+    }
+
+    // Validasi document requirements jika diubah
+    const sjAvailable = args.sj_available ?? existingTicket.sj_available;
+    const ktpAvailable = args.ktp_available ?? existingTicket.ktp_available;
+    const simAvailable = args.sim_available ?? existingTicket.sim_available;
+
+    if (!sjAvailable) {
+      throw new Error("Surat Jalan (SJ) wajib tersedia!");
+    }
+
+    if (!ktpAvailable && !simAvailable) {
+      throw new Error("Minimal salah satu dari KTP atau SIM harus tersedia!");
+    }
+
+    // Validasi principal/vendor berdasarkan activity_type
+    if (existingTicket.activity_type === true) { // inbound
+      const principal = args.principal ?? existingTicket.principal;
+      if (!principal) {
+        throw new Error("Principal wajib diisi untuk aktivitas inbound!");
+      }
+    } else { // outbound
+      const vendor = args.vendor ?? existingTicket.vendor;
+      if (!vendor) {
+        throw new Error("Vendor wajib diisi untuk aktivitas outbound!");
+      }
+    }
+
+    let driverId = existingTicket.driver_id;
+
+    // Update driver info jika ada perubahan pada data driver
+    if (args.driver_name || args.nik || args.handphone_number) {
+      // Ambil data driver saat ini
+      const currentDriver = await ctx.db.get(existingTicket.driver_id);
+      if (!currentDriver) {
+        throw new Error("Data driver tidak ditemukan!");
+      }
+
+      const updatedDriverData = {
+        name: args.driver_name || currentDriver.name,
+        nik: args.nik || currentDriver.nik,
+        handphone_number: args.handphone_number || currentDriver.handphone_number,
+      };
+
+      // Jika NIK berubah, cari driver dengan NIK baru atau buat baru
+      if (args.nik && args.nik !== currentDriver.nik) {
+        driverId = await createOrGetDriver(ctx, updatedDriverData);
+      } else {
+        // Update driver yang sudah ada
+        await ctx.db.patch(existingTicket.driver_id, updatedDriverData);
+      }
+    }
+
+    // Prepare update data untuk ticket
+    const updateData: any = {};
+
+    if (args.license_plate !== undefined) {
+      updateData.license_plate = args.license_plate.toUpperCase();
+    }
+    if (args.truck_type !== undefined) {
+      updateData.truck_type = args.truck_type;
+    }
+    if (args.principal !== undefined) {
+      updateData.principal = args.principal;
+    }
+    if (args.vendor !== undefined) {
+      updateData.vendor = args.vendor;
+    }
+    if (args.sj_available !== undefined) {
+      updateData.sj_available = args.sj_available;
+    }
+    if (args.ktp_available !== undefined) {
+      updateData.ktp_available = args.ktp_available;
+    }
+    if (args.sim_available !== undefined) {
+      updateData.sim_available = args.sim_available;
+    }
+    
+    // Update driver_id jika berubah
+    if (driverId !== existingTicket.driver_id) {
+      updateData.driver_id = driverId;
+    }
+
+    // Update ticket
+    await ctx.db.patch(args.ticketId, updateData);
+
+    // Return updated ticket dengan driver data
+    const updatedTicket = await ctx.db.get(args.ticketId);
+    const driverData = await ctx.db.get(driverId);
+
+    return {
+      ...updatedTicket,
+      driver: driverData,
+    };
+  },
+});
+
+export const getTicketById = query({
+  args: { ticketId: v.id("tickets") },
+  handler: async (ctx, args) => {
+    const ticket = await ctx.db.get(args.ticketId);
+    if (!ticket) {
+      throw new Error("Ticket tidak ditemukan!");
+    }
+
+    const driver = await ctx.db.get(ticket.driver_id);
+    
+    return {
+      ...ticket,
+      driver: driver,
+    };
   },
 });
 
