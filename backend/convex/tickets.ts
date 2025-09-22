@@ -39,9 +39,10 @@ async function createOrGetDriver(ctx: any, args: {
 }
 
 // Create ticket dengan schema baru
-// Update function createTicket di tickets.ts
 export const createTicket = mutation({
   args: {
+    activity_type: v.boolean(), // T : inbound/ F : outbound
+
     // Driver info
     driver_name: v.string(),
     nik: v.string(),
@@ -50,7 +51,8 @@ export const createTicket = mutation({
     // Transport info
     license_plate: v.string(),
     truck_type: v.string(),
-    principal: v.string(),
+    principal: v.optional(v.string()),
+    vendor: v.optional(v.string()),
 
     // Document verification
     sj_available: v.boolean(),
@@ -58,18 +60,31 @@ export const createTicket = mutation({
     sim_available: v.boolean(),
   },
   handler: async (ctx, args) => {
-    // VALIDASI DI BACKEND
-    // 1. SJ wajib tersedia
+    // Outbound harus ada vendor
+    if (args.activity_type !== true) { //outbound
+      if (!args.vendor) {
+        throw new Error("Vendor wajib diisi untuk aktivitas outbound!");
+      }
+    }
+
+    // Inbound harus ada principal
+    if (args.activity_type === true) { //inbound
+      if (!args.principal) {
+        throw new Error("Principal wajib diisi untuk aktivitas inbound!");
+      }
+    }
+
+    // SJ wajib tersedia
     if (!args.sj_available) {
       throw new Error("Surat Jalan (SJ) wajib tersedia!");
     }
 
-    // 2. Minimal salah satu dari KTP atau SIM harus tersedia
+    // Minimal salah satu dari KTP atau SIM harus tersedia
     if (!args.ktp_available && !args.sim_available) {
       throw new Error("Minimal salah satu dari KTP atau SIM harus tersedia!");
     }
 
-    // 3. Validasi NIK harus 16 digit
+    // Validasi NIK harus 16 digit
     if (args.nik.length !== 16 || !/^\d{16}$/.test(args.nik)) {
       throw new Error("NIK harus 16 digit angka!");
     }
@@ -87,10 +102,12 @@ export const createTicket = mutation({
     // Insert ticket
     const ticketId = await ctx.db.insert("tickets", {
       // Transport info
+      activity_type: args.activity_type, // true = inbound
       license_plate: args.license_plate.toUpperCase(), // Auto uppercase
       truck_type: args.truck_type,
       driver_id: driverId,
       principal: args.principal,
+      vendor: args.vendor,
 
       // Document verification
       sj_available: args.sj_available,
