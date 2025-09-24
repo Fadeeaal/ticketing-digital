@@ -337,7 +337,7 @@
                   </div>
                   <div>
                     <span class="font-semibold text-[#6c366a]">Tanggal:</span>
-                    <span class="ml-2 text-purple-700">{{ selectedTicket.inbound_date }}</span>
+                    <span class="ml-2 text-purple-700">{{ selectedTicket.arrival_date }}</span>
                   </div>
                   <div>
                     <span class="font-semibold text-[#6c366a]">Status:</span>

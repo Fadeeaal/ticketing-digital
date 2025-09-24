@@ -17,7 +17,7 @@ export interface Ticket {
   sj_available: boolean;
   ktp_available: boolean;
   sim_available: boolean;
-  inbound_date: string;
+  arrival_date: string;
   ticket_status: number;
   arrival_time: string;
   start_unloading_time?: string;    // Optional fields
