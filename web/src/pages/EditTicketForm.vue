@@ -7,28 +7,45 @@
           <div>
             <img src="../assets/orbiz-logo.png" alt="Orbiz Logo" class="w-10 h-10 object-contain" />
           </div>
-          <h1 class="text-slate-800 text-4xl font-bold tracking-tight bg-gradient-to-r from-[#6c366a] to-purple-600 bg-clip-text text-transparent">Form Ticketing</h1>
+          <h1 class="text-slate-800 text-4xl font-bold tracking-tight bg-gradient-to-r from-[#6c366a] to-purple-600 bg-clip-text text-transparent">Edit Ticketing</h1>
         </div>
-        <p class="text-slate-600 text-lg font-medium">Silakan isi ticketing agar aktivitas diproses</p>
+        <p class="text-slate-600 text-lg font-medium">Perbarui informasi ticket agar aktivitas diproses</p>
         <div class="w-24 h-1 bg-gradient-to-r from-[#6c366a] to-purple-600 rounded-full mx-auto mt-4"></div>
+      </div>
+      
+
+      <!-- Back Button -->
+      <div class="mb-6">
+        <button 
+          @click="goBack"
+          class="flex items-center gap-2 px-4 py-2 text-[#6c366a] hover:bg-purple-50 rounded-lg transition-colors duration-200"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Kembali
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="bg-white rounded-3xl shadow-xl p-16 text-center border border-purple-100">
+        <div class="flex flex-col items-center">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-[#6c366a] mb-6"></div>
+          <div class="text-gray-500 text-lg font-medium">Memuat data ticket...</div>
+        </div>
       </div>
 
       <!-- Main Form Card -->
-      <div class="bg-white rounded-3xl shadow-xl border border-purple-100 overflow-hidden">
-        <form @submit.prevent="submitTicket" class="p-8 lg:p-10">
+      <div v-else class="bg-white rounded-3xl shadow-xl border border-purple-100 overflow-hidden">
+        <form @submit.prevent="updateTicket" class="p-8 lg:p-10">
           
-          <!-- Activity Type Section -->
+          <!-- Activity Type Section (Read Only) -->
           <div class="mb-8">
-            <Dropdown
-              id="activity_type"
-              label="Tipe Aktivitas"
-              v-model="formData.activity_type"
-              :options="activityTypeOptions"
-              :required="true"
-              placeholder="-- Pilih Tipe Aktivitas --"
-              size="large"
-              @change="onActivityTypeChange"
-            />
+            <label class="block text-sm font-bold text-[#6c366a] mb-2">Tipe Aktivitas</label>
+            <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <span class="text-gray-700 font-medium">{{ getActivityType(originalTicket!.activity_type) }}</span>
+              <span class="ml-2 text-sm text-gray-500">(Tidak dapat diubah)</span>
+            </div>
           </div>
 
           <!-- Driver Information Section -->
@@ -129,9 +146,9 @@
                 label="Principal"
                 v-model="formData.principal"
                 :options="principalOptions"
-                :required="formData.activity_type === 'true'"
-                :disabled="formData.activity_type !== 'true'"
-                :disabled-note="formData.activity_type === 'false' ? '(Dinonaktifkan untuk Outbound)' : ''"
+                :required="originalTicket?.activity_type === true"
+                :disabled="originalTicket?.activity_type !== true"
+                :disabled-note="originalTicket?.activity_type === false ? '(Dinonaktifkan untuk Outbound)' : ''"
                 placeholder="-- Pilih Principal --"
               />
 
@@ -141,8 +158,7 @@
                 label="Vendor"
                 v-model="formData.vendor"
                 :options="vendorOptions"
-                :required="formData.activity_type === 'false'"
-                :disabled="formData.activity_type === ''"
+                :required="originalTicket?.activity_type === false"
                 placeholder="-- Pilih Vendor --"
               />
             </div>
@@ -207,7 +223,7 @@
               :disabled="isSubmitting"
               class="w-full py-4 px-6 bg-gradient-to-r from-[#6c366a] to-purple-600 hover:from-purple-700 hover:to-[#6c366a] text-white border-none rounded-xl text-lg font-bold cursor-pointer transition-all duration-300 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
             >
-              {{ isSubmitting ? '⏳ Memproses...' : 'Buat Tiket' }}
+              {{ isSubmitting ? '⏳ Menyimpan...' : 'Simpan Perubahan' }}
             </button>
           </div>
         </form>
@@ -218,8 +234,8 @@
     <div v-if="showSuccess" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-5 animate-fade-in" @click="closeModal">
       <div class="bg-white p-8 rounded-3xl text-center max-w-md w-full shadow-2xl border border-purple-200 transform animate-scale-in" @click.stop>
         <div class="w-20 h-20 bg-gradient-to-r from-[#6c366a] to-purple-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg">✓</div>
-        <h2 class="mb-4 text-slate-800 text-2xl font-bold">Tiket Berhasil Dibuat!</h2>
-        <p class="text-slate-600 mb-6">Tiket telah berhasil disimpan dalam sistem</p>
+        <h2 class="mb-4 text-slate-800 text-2xl font-bold">Ticket Berhasil Diperbarui!</h2>
+        <p class="text-slate-600 mb-6">Perubahan telah berhasil disimpan</p>
         <button @click="closeModal" class="py-3 px-8 bg-gradient-to-r from-[#6c366a] to-purple-600 hover:from-purple-700 hover:to-[#6c366a] text-white border-none rounded-xl font-bold cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl">Tutup</button>
       </div>
     </div>
@@ -237,18 +253,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import FormInput from '../components/InputField.vue'
 import Dropdown from '../components/Dropdown.vue'
 import LicensePlate from '../components/LicensePlate.vue'
 import convex from '../convex'
 import { api } from '../../../backend/convex/_generated/api'
+import type { Ticket } from '../interface/Ticket'
 
-const router = useRouter();
+const router = useRouter()
+const route = useRoute()
+
+const loading = ref(true)
+const isSubmitting = ref(false)
+const showSuccess = ref(false)
+const errorMessage = ref('')
+const originalTicket = ref<Ticket | null>(null)
 
 const formData = reactive({
-  activity_type: '',
   driver_name: '',
   nik: '',
   handphone_number: '',
@@ -264,11 +287,6 @@ const formData = reactive({
 })
 
 // Options data untuk setiap dropdown
-const activityTypeOptions = [
-  { value: 'true', label: 'Inbound' },
-  { value: 'false', label: 'Outbound' }
-]
-
 const truckTypeOptions = [
   { value: 'Tipe A', label: 'Tipe A' },
   { value: 'Tipe B', label: 'Tipe B' },
@@ -293,37 +311,113 @@ const vendorOptions = [
   { value: 'PT Gamma Transport', label: 'PT Gamma Transport' }
 ]
 
-const isSubmitting = ref(false)
-const showSuccess = ref(false)
-const errorMessage = ref('')
-const createdTicket = ref(null)
+// Helper functions
+const getActivityType = (status: boolean | string): string => {
+  if (status === true || status === 'true') return 'Inbound'
+  if (status === false || status === 'false') return 'Outbound'
+  return 'Status Tidak Diketahui'
+}
 
 // Computed property untuk gabungan plat nomor lengkap
 const fullLicensePlate = computed(() => {
   return `${formData.license_plate_letters1}${formData.license_plate_numbers}${formData.license_plate_letters2}`
 })
 
-// Handle activity type change
-const onActivityTypeChange = () => {
-  // Reset principal dan vendor ketika activity type berubah
-  if (formData.activity_type === 'true') { // Inbound
-    formData.vendor = ''
-  } else if (formData.activity_type === 'false') { // Outbound
-    formData.principal = ''
+// Parse license plate from full string
+const parseLicensePlate = (licensePlate: string) => {
+  const match = licensePlate.match(/^([A-Z]+)(\d+)([A-Z]+)$/)
+  if (match) {
+    return {
+      letters1: match[1],
+      numbers: match[2],
+      letters2: match[3]
+    }
+  }
+  return { letters1: '', numbers: '', letters2: '' }
+}
+
+// Load ticket data
+const loadTicketData = async () => {
+  try {
+    loading.value = true
+    const ticketId = route.params.id as string
+    
+    if (!ticketId) {
+      throw new Error('ID ticket tidak ditemukan')
+    }
+
+    // Try direct API call first
+    let result
+    try {
+      const response = await fetch(`${import.meta.env.VITE_CONVEX_URL}/api/tickets/${ticketId}`.replace('.convex.cloud', '.convex.site'))
+      const data = await response.json()
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Gagal memuat data ticket')
+      }
+      
+      result = data.data
+    } catch (fetchError) {
+      console.error('Direct API failed, trying Convex client:', fetchError)
+      result = await convex.query(api.tickets.getTicketById, { ticketId: ticketId as any })
+    }
+
+    originalTicket.value = result
+
+    // Populate form data
+    const licensePlateParts = parseLicensePlate(result.license_plate)
+    
+    formData.driver_name = result.driver?.name || ''
+    formData.nik = result.driver?.nik || ''
+    formData.handphone_number = result.driver?.handphone_number || ''
+    formData.license_plate_letters1 = licensePlateParts.letters1
+    formData.license_plate_numbers = licensePlateParts.numbers
+    formData.license_plate_letters2 = licensePlateParts.letters2
+    formData.truck_type = result.truck_type || ''
+    formData.principal = result.principal || ''
+    formData.vendor = result.vendor || ''
+    formData.sj_available = result.sj_available || false
+    formData.ktp_available = result.ktp_available || false
+    formData.sim_available = result.sim_available || false
+
+  } catch (error: any) {
+    console.error('Failed to load ticket:', error)
+    errorMessage.value = error.message || 'Gagal memuat data ticket'
+  } finally {
+    loading.value = false
   }
 }
 
-const submitTicket = async () => {
+// Update ticket
+const updateTicket = async () => {
   try {
     isSubmitting.value = true
     errorMessage.value = ''
 
-    // Convert activity_type to boolean
-    const activityTypeBoolean = formData.activity_type === 'true'
+    const ticketId = route.params.id as string
 
-    // Prepare submit data
-    const submitData = {
-      activity_type: activityTypeBoolean,
+    // Validate all documents are checked
+    if (!formData.sj_available || (!formData.ktp_available && !formData.sim_available)) {
+      throw new Error('Dokumen SJ wajib tersedia, dan setidaknya salah satu dari KTP atau SIM harus tersedia sebelum melanjutkan')
+    }
+
+    // Validate license plate parts
+    if (!formData.license_plate_letters1 || !formData.license_plate_numbers || !formData.license_plate_letters2) {
+      throw new Error('Plat nomor harus diisi lengkap (huruf-angka-huruf)')
+    }
+
+    // Validate principal for inbound
+    if (originalTicket.value?.activity_type === true && !formData.principal) {
+      throw new Error('Principal wajib diisi untuk aktivitas Inbound')
+    }
+
+    // Validate vendor for outbound
+    if (originalTicket.value?.activity_type === false && !formData.vendor) {
+      throw new Error('Vendor wajib diisi untuk aktivitas Outbound')
+    }
+
+    // Prepare update data
+    const updateData = {
       driver_name: formData.driver_name,
       nik: formData.nik,
       handphone_number: formData.handphone_number,
@@ -336,41 +430,15 @@ const submitTicket = async () => {
       sim_available: formData.sim_available
     }
 
-    // Validate all documents are checked
-    if (!formData.sj_available || (!formData.ktp_available && !formData.sim_available)) {
-      throw new Error('Dokumen SJ wajib tersedia, dan setidaknya salah satu dari KTP atau SIM harus tersedia sebelum melanjutkan')
-    }
-
-    // Validate license plate parts
-    if (!formData.license_plate_letters1 || !formData.license_plate_numbers || !formData.license_plate_letters2) {
-      throw new Error('Plat nomor harus diisi lengkap (huruf-angka-huruf)')
-    }
-
-    // Validate activity type selection
-    if (!formData.activity_type) {
-      throw new Error('Tipe aktivitas harus dipilih')
-    }
-
-    // Validate principal for inbound
-    if (activityTypeBoolean && !formData.principal) {
-      throw new Error('Principal wajib diisi untuk aktivitas Inbound')
-    }
-
-    // Validate vendor for outbound
-    if (!activityTypeBoolean && !formData.vendor) {
-      throw new Error('Vendor wajib diisi untuk aktivitas Outbound')
-    }
-
-    // Call Convex mutation with direct HTTP call as fallback
+    // Call update API
     let result
     try {
-      // Try direct API call first
-      const response = await fetch(`${import.meta.env.VITE_CONVEX_URL}/api/create-ticket`.replace('.convex.cloud', '.convex.site'), {
-        method: 'POST',
+      const response = await fetch(`${import.meta.env.VITE_CONVEX_URL}/api/tickets/update/${ticketId}`.replace('.convex.cloud', '.convex.site'), {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(submitData)
+        body: JSON.stringify(updateData)
       })
 
       const data = await response.json()
@@ -378,52 +446,37 @@ const submitTicket = async () => {
       if (!data.success) {
         throw new Error(data.error || 'Server error')
       }
-      
-      result = data.data
+
     } catch (fetchError) {
       console.error('Direct API failed, trying Convex client:', fetchError)
-      result = await convex.mutation(api.tickets.createTicket, submitData)
     }
     
-    createdTicket.value = result
     showSuccess.value = true
-    
-    // Reset form
-    formData.activity_type = ''
-    formData.driver_name = ''
-    formData.nik = ''
-    formData.handphone_number = ''
-    formData.license_plate_letters1 = ''
-    formData.license_plate_numbers = ''
-    formData.license_plate_letters2 = ''
-    formData.truck_type = ''
-    formData.principal = ''
-    formData.vendor = ''
-    formData.sj_available = false
-    formData.ktp_available = false
-    formData.sim_available = false
 
-  } catch (error: unknown) {
-    console.error('Submit error:', error)
-    if (error instanceof Error) {
-      errorMessage.value = error.message || 'Gagal membuat tiket. Silakan coba lagi.'
-    } else {
-      errorMessage.value = 'Gagal membuat tiket. Silakan coba lagi.'
-    }
+  } catch (error: any) {
+    console.error('Update error:', error)
+    errorMessage.value = error.message || 'Gagal memperbarui ticket. Silakan coba lagi.'
   } finally {
     isSubmitting.value = false
   }
 }
 
+const goBack = () => {
+  router.back()
+}
+
 const closeModal = () => {
   showSuccess.value = false
-  createdTicket.value = null
   router.push('/')
 }
 
 const clearError = () => {
   errorMessage.value = ''
 }
+
+onMounted(() => {
+  loadTicketData()
+})
 </script>
 
 <style scoped>

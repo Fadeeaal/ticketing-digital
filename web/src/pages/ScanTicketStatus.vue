@@ -31,7 +31,6 @@ import convex from '../convex'
 import { api } from '../../../backend/convex/_generated/api'
 import type { Id } from '../../../backend/convex/_generated/dataModel'
 
-const scanResult = ref('')
 const processing = ref(false)
 const loadingTicket = ref(false)
 const errorMessage = ref('')
