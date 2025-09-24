@@ -28,6 +28,7 @@ export default tseslint.config(
         ...globals.node,
       },
       parserOptions: {
+        tsconfigRootDir: __dirname,
         project: [
           "./tsconfig.node.json",
           "./tsconfig.app.json",

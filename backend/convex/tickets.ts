@@ -69,10 +69,10 @@ export const createTicket = mutation({
       }
     }
 
-    // Inbound harus ada principal
+    // Inbound minimal harus ada 1 principal / vendor
     if (args.activity_type === true) { //inbound
-      if (!args.principal) {
-        throw new Error("Principal wajib diisi untuk aktivitas inbound!");
+      if (!args.principal && !args.vendor) {
+        throw new Error("Principal atau vendor wajib diisi untuk aktivitas inbound!");
       }
     }
 
@@ -91,7 +91,7 @@ export const createTicket = mutation({
       throw new Error("NIK harus 16 digit angka!");
     }
 
-    const inbound_date = getToday();
+    const arrival_date = getToday();
     const arrival_time = getWibTimeString();
 
     // Create or get driver ID
@@ -117,7 +117,7 @@ export const createTicket = mutation({
       sim_available: args.sim_available,
 
       // Status & timing
-      inbound_date,
+      arrival_date,
       ticket_status: 0,
       arrival_time,
       start_unloading_time: undefined,
@@ -164,7 +164,7 @@ export const listTodayTickets = query({
     
     const tickets = await ctx.db
       .query("tickets")
-      .filter(q => q.eq(q.field("inbound_date"), todayStr))
+      .filter(q => q.eq(q.field("arrival_date"), todayStr))
       .collect();
 
     // Join dengan data driver
@@ -199,7 +199,7 @@ export const getTicketsByDate = query({
     
     const tickets = await ctx.db
       .query("tickets")
-      .filter((q: any) => q.eq(q.field("inbound_date"), formattedDate))
+      .filter((q: any) => q.eq(q.field("arrival_date"), formattedDate))
       .collect();
 
     // Join dengan data driver
@@ -242,6 +242,10 @@ export const updateTicket = mutation({
     const existingTicket = await ctx.db.get(args.ticketId);
     if (!existingTicket) {
       throw new Error("Ticket tidak ditemukan!");
+    }
+
+    if (existingTicket.ticket_status > 0) {
+      throw new Error("Ticket sudah dalam proses, tidak bisa diupdate!");
     }
 
     // Validasi NIK jika diubah
@@ -369,6 +373,10 @@ export const setStartUnloadingTime = mutation({
     const ticket = await ctx.db.get(args.ticketId);
     if (!ticket) throw new Error("Ticket tidak ditemukan!");
 
+    if (ticket.ticket_status !== 0) {
+      throw new Error("Ticket sudah melewati proses ini!");
+    }
+
     await ctx.db.patch(args.ticketId, { 
       ticket_status: 1, 
       start_unloading_time: getWibTimeString() 
@@ -389,7 +397,7 @@ export const setFinishUnloadingTime = mutation({
   handler: async (ctx, args) => {
     const ticket = await ctx.db.get(args.ticketId);
     if (!ticket) throw new Error("Ticket tidak ditemukan!");
-    if (!ticket.start_unloading_time) throw new Error("Unloading belum dimulai!");
+    if (ticket.ticket_status !== 1) throw new Error("Unloading belum dimulai atau sudah selesai!");
 
     await ctx.db.patch(args.ticketId, { 
       ticket_status: 2, 
@@ -411,7 +419,7 @@ export const setDriverDepartureTime = mutation({
   handler: async (ctx, args) => {
     const ticket = await ctx.db.get(args.ticketId);
     if (!ticket) throw new Error("Ticket tidak ditemukan!");
-    if (!ticket.finish_unloading_time) throw new Error("Unloading belum selesai!");
+    if (ticket.ticket_status !== 2) throw new Error("Unloading belum selesai atau driver sudah berangkat!");
 
     await ctx.db.patch(args.ticketId, { 
       ticket_status: 3, 

@@ -23,7 +23,7 @@ http.route({
   }),
 });
 
-// Get today's tickets (dengan CORS)
+// Get today's tickets
 http.route({
   path: "/api/tickets/today",
   method: "GET",
@@ -55,7 +55,7 @@ http.route({
   }),
 });
 
-// Get All tickets (dengan CORS)
+// Get All tickets
 http.route({
   path: "/api/tickets/all",
   method: "GET",
@@ -87,7 +87,7 @@ http.route({
   }),
 });
 
-// Create new ticket (dengan CORS)
+// Create new ticket
 http.route({
   path: "/api/create-ticket",
   method: "POST",
@@ -120,14 +120,14 @@ http.route({
   }),
 });
 
-// Start unloading (dengan CORS)
+// Start unloading
 http.route({
-  path: "/api/tickets/start-unloading",
+  pathPrefix: "/api/tickets/start-unloading/",
   method: "PUT",
   handler: httpAction(async (ctx, request) => {
     try {
       const url = new URL(request.url);
-      const ticketId = url.searchParams.get('ticketId');
+      const ticketId = url.pathname.replace("/api/tickets/start-unloading/", "");
       
       if (!ticketId) {
         return new Response(JSON.stringify({ 
@@ -141,8 +141,8 @@ http.route({
           }
         });
       }
-      
-      await ctx.runMutation(api.tickets.setStartUnloadingTime, { 
+
+      const result = await ctx.runMutation(api.tickets.setStartUnloadingTime, {
         ticketId: ticketId as any
       });
       
@@ -150,6 +150,8 @@ http.route({
         success: true, 
         message: "Waktu mulai unloading berhasil diset",
         ticketId: ticketId,
+        status: result.ticket_status,
+        timestamp : result.start_unloading_time
       }), {
         status: 200,
         headers: { 
@@ -172,14 +174,14 @@ http.route({
   }),
 });
 
-// Finish unloading (dengan CORS)
+// Finish unloading
 http.route({
-  path: "/api/tickets/finish-unloading",
+  pathPrefix: "/api/tickets/finish-unloading/",
   method: "PUT",
   handler: httpAction(async (ctx, request) => {
     try {
       const url = new URL(request.url);
-      const ticketId = url.searchParams.get('ticketId');
+      const ticketId = url.pathname.replace("/api/tickets/finish-unloading/", "");
       
       if (!ticketId) {
         return new Response(JSON.stringify({ 
@@ -194,14 +196,17 @@ http.route({
         });
       }
       
-      await ctx.runMutation(api.tickets.setFinishUnloadingTime, { 
+      const result = await ctx.runMutation(api.tickets.setFinishUnloadingTime, {
         ticketId: ticketId as any
       });
+
       
       return new Response(JSON.stringify({ 
         success: true, 
         message: "Waktu selesai unloading berhasil diset",
-        ticketId: ticketId
+        ticketId: ticketId,
+        status: result.ticket_status,
+        timestamp : result.finish_unloading_time
       }), {
         status: 200,
         headers: { 
@@ -224,14 +229,14 @@ http.route({
   }),
 });
 
-// Driver departure (dengan CORS)
+// Driver departure
 http.route({
-  path: "/api/tickets/driver-departure",
+  pathPrefix: "/api/tickets/driver-departure/",
   method: "PUT",
   handler: httpAction(async (ctx, request) => {
     try {
       const url = new URL(request.url);
-      const ticketId = url.searchParams.get('ticketId');
+      const ticketId = url.pathname.replace("/api/tickets/driver-departure/", "");
       
       if (!ticketId) {
         return new Response(JSON.stringify({ 
@@ -246,14 +251,16 @@ http.route({
         });
       }
       
-      await ctx.runMutation(api.tickets.setDriverDepartureTime, { 
+      const result = await ctx.runMutation(api.tickets.setDriverDepartureTime, {
         ticketId: ticketId as any
       });
       
       return new Response(JSON.stringify({ 
         success: true, 
-        message: "Waktu keberangkatan driver berhasil diset",
-        ticketId: ticketId
+        message: "Waktu kepergian driver berhasil diset",
+        ticketId: ticketId,
+        status: result.ticket_status,
+        timestamp : result.departure_time
       }), {
         status: 200,
         headers: { 
@@ -276,19 +283,19 @@ http.route({
   }),
 });
 
-// Update/Edit ticket (dengan CORS)
+// Update/Edit ticket
 http.route({
-  path: "/api/tickets/update",
+  pathPrefix: "/api/tickets/update/",
   method: "PUT",
   handler: httpAction(async (ctx, request) => {
     try {
-      const body = await request.json();
+      const url = new URL(request.url);
+      const ticketId = url.pathname.replace("/api/tickets/update/", "");
       
-      // Validasi ticketId
-      if (!body.ticketId) {
+      if (!ticketId) {
         return new Response(JSON.stringify({ 
           success: false, 
-          error: "ticketId is required" 
+          error: "ticketId parameter is required" 
         }), {
           status: 400,
           headers: { 
@@ -298,7 +305,15 @@ http.route({
         });
       }
 
-      const result = await ctx.runMutation(api.tickets.updateTicket, body);
+      const body = await request.json();
+      
+      // Tambahkan ticketId ke body untuk mutation
+      const mutationArgs = {
+        ...body,
+        ticketId: ticketId as any
+      };
+
+      const result = await ctx.runMutation(api.tickets.updateTicket, mutationArgs);
       
       return new Response(JSON.stringify({ 
         success: true, 
@@ -326,16 +341,33 @@ http.route({
   }),
 });
 
-// Get single ticket by ID (dengan CORS)
+// Get ticket by ID
 http.route({
-  path: "/api/tickets/:ticketId",
+  pathPrefix: "/api/tickets/",
   method: "GET",
   handler: httpAction(async (ctx, request) => {
     try {
       const url = new URL(request.url);
-      const ticketId = url.pathname.split('/').pop();
+      const path = url.pathname;
       
-      if (!ticketId) {
+      // Skip jika ini adalah route lain seperti /api/tickets/today atau /api/tickets/all
+      if (path === "/api/tickets/today" || path === "/api/tickets/all") {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Route not found" 
+        }), {
+          status: 404,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+      
+      // Extract ticketId dari path
+      const ticketId = path.replace("/api/tickets/", "");
+      
+      if (!ticketId || ticketId.includes('/')) {
         return new Response(JSON.stringify({ 
           success: false, 
           error: "ticketId parameter is required" 
