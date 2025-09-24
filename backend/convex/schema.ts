@@ -26,14 +26,14 @@ export default defineSchema({
     sim_available: v.boolean(),
 
     // Status & Timing
-    inbound_date: v.string(),
+    arrival_date: v.string(),
     ticket_status: v.number(),
     arrival_time: v.string(),
     start_unloading_time: v.optional(v.string()),
     finish_unloading_time: v.optional(v.string()),
     departure_time: v.optional(v.string()),
   })
-  .index("by_inbound_date", ["inbound_date"])
+  .index("arrival_date", ["arrival_date"])
   .index("by_status", ["ticket_status"])
   .index("by_driver_id", ["driver_id"]),
 });
