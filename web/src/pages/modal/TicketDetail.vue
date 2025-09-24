@@ -1,6 +1,6 @@
 <template>
   <div v-if="ticket" class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-5 backdrop-blur-sm" @click="$emit('close')">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-purple-200 transform transition-all duration-300" @click.stop>
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-purple-200 transform transition-all duration-300" @click.stop>
       <!-- Modal Header -->
       <div class="px-8 py-6 bg-gradient-to-r from-[#6c366a] to-purple-600 rounded-t-2xl">
         <div class="flex items-center justify-between">
@@ -11,17 +11,15 @@
             Detail Ticket
           </h2>
           <div class="flex items-center gap-3">
-            <!-- Edit Button - Only show if ticket status is 0 (not started) -->
-            <button 
+            <!-- Enhanced Edit Button - Only show if ticket status is 0 (not started) -->
+            <button
               v-if="ticket.ticket_status === 0"
               @click="editTicket"
-              class="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200 flex items-center gap-2 text-white"
+              class="px-4 py-2 bg-gradient-to-r from-[#6c366a] to-purple-500 border-2 border-transparent rounded-lg flex items-center gap-2 text-white font-semibold text-sm outline-none shadow-md hover:bg-white hover:text-[#6c366a] hover:border-[#6c366a] hover:from-white hover:to-white focus:ring-2 focus:ring-purple-300"
               title="Edit Ticket"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-              </svg>
-              <span class="text-sm">Edit</span>
+              <font-awesome-icon icon="fa-solid fa-pen-to-square" class="w-5 h-5" />
+              <span>Edit</span>
             </button>
             <!-- Close Button -->
             <button @click="$emit('close')" class="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200">
@@ -185,6 +183,7 @@
 </template>
 
 <script setup lang="ts">
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useRouter } from 'vue-router'
 import QrcodeVue from 'qrcode.vue'
 import type { Ticket } from '../../interface/Ticket'
@@ -201,6 +200,9 @@ const emit = defineEmits<{
 
 const router = useRouter()
 
+// Register FontAwesomeIcon component
+defineExpose({ FontAwesomeIcon })
+
 // Helper functions
 const getCompany = (ticket: Ticket): string => {
   if (ticket.activity_type === true) return ticket.principal
@@ -214,10 +216,11 @@ const getActivityType = (status: boolean | string): string => {
   return 'Status Tidak Diketahui'
 }
 
-// Generate QR URL based on current status
+// Generate QR URL based on current status, using env or window.location.origin
 const getQRUrl = (ticketId: string, currentStatus: number): string => {
   const nextStep = currentStatus + 1 // Next step to execute
-  return `http://10.255.82.73:5173/scan?ticketId=${ticketId}&step=${nextStep}`
+  const baseUrl = import.meta.env.VITE_BASE_URL || window.location.origin
+  return `${baseUrl}/scan?ticketId=${ticketId}&step=${nextStep}`
 }
 
 const getStatusText = (status: number): string => {
