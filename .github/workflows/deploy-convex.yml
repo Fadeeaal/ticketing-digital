@@ -1,0 +1,40 @@
+# Nama workflow yang akan muncul di tab Actions GitHub
+name: Deploy Convex Backend
+
+# Kapan workflow ini harus berjalan?
+on:
+  push:
+    branches:
+      - main # Hanya saat ada 'push' ke branch 'main'
+    paths:
+      - 'backend/**' # Dan HANYA jika ada perubahan di dalam folder 'backend'
+
+jobs:
+  deploy:
+    name: Deploy Backend
+    runs-on: ubuntu-latest # Menggunakan server Linux dari GitHub
+    steps:
+      # Langkah 1: Mengunduh kode dari repositori
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Langkah 2: Menyiapkan lingkungan Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      # Langkah 3: Menginstal dependensi backend
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./backend # Menjalankan perintah di dalam folder 'backend'
+
+      # Langkah 4: Menjalankan deploy ke Convex
+      - name: Deploy to Convex
+        run: npx convex deploy
+        working-directory: ./backend # Menjalankan perintah di dalam folder 'backend'
+        env:
+          # Menggunakan kunci rahasia yang sudah Anda simpan
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
