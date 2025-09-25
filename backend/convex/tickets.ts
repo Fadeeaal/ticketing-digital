@@ -16,7 +16,7 @@ function getToday(): string {
   return `${dd}-${mm}-${yyyy}`;
 }
 
-// Helper function untuk create/get driver (sesuai schema baru)
+// Helper function untuk create/get driver
 async function createOrGetDriver(ctx: any, args: {
   name: string;
   nik: string;
@@ -165,6 +165,74 @@ export const listTodayTickets = query({
     const tickets = await ctx.db
       .query("tickets")
       .filter(q => q.eq(q.field("arrival_date"), todayStr))
+      .collect();
+
+    // Join dengan data driver
+    const ticketsWithDriver = await Promise.all(
+      tickets.map(async (ticket) => {
+        const driver = await ctx.db.get(ticket.driver_id);
+        return {
+          ...ticket,
+          driver: driver,
+        };
+      })
+    );
+
+    return ticketsWithDriver;
+  },
+});
+
+// List tickets berdasarkan status
+export const listTicketsByStatus = query({
+  args: {
+    status: v.number(), // 0, 1, 2, 3
+  },
+  handler: async (ctx, args) => {
+    const tickets = await ctx.db
+      .query("tickets")
+      .withIndex("by_status", q => q.eq("ticket_status", args.status))
+      .collect();
+
+    // Join dengan data driver
+    const ticketsWithDriver = await Promise.all(
+      tickets.map(async (ticket) => {
+        const driver = await ctx.db.get(ticket.driver_id);
+        return {
+          ...ticket,
+          driver: driver,
+        };
+      })
+    );
+
+    return ticketsWithDriver;
+  },
+});
+
+export const listTicketsByStatusAndDate = query({
+  args: {
+    status: v.number(),
+    date: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Konversi DDMMYYYY ke DD-MM-YYYY
+    const dateStr = args.date;
+    if (dateStr.length !== 8) {
+      throw new Error("Format tanggal harus DDMMYYYY (contoh: 28012025)");
+    }
+    
+    const dd = dateStr.slice(0, 2);
+    const mm = dateStr.slice(2, 4);
+    const yyyy = dateStr.slice(4, 8);
+    const formattedDate = `${dd}-${mm}-${yyyy}`;
+    
+    const tickets = await ctx.db
+      .query("tickets")
+      .filter(q => 
+        q.and(
+          q.eq(q.field("ticket_status"), args.status),
+          q.eq(q.field("arrival_date"), formattedDate)
+        )
+      )
       .collect();
 
     // Join dengan data driver
