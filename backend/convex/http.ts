@@ -87,6 +87,191 @@ http.route({
   }),
 });
 
+// Get tickets by status
+http.route({
+  pathPrefix: "/api/tickets/status/",
+  method: "GET", 
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const url = new URL(request.url);
+      const status = url.pathname.replace("/api/tickets/status/", "");
+      
+      if (!status || isNaN(Number(status))) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Valid status parameter (0, 1, 2, 3) is required" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      const statusNumber = Number(status);
+      
+      // Validasi status hanya 0, 1, 2, 3
+      if (![0, 1, 2, 3].includes(statusNumber)) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Status must be 0, 1, 2, or 3" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      const result = await ctx.runQuery(api.tickets.listTicketsByStatus, { 
+        status: statusNumber 
+      });
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: result,
+        count: result.length,
+        status: statusNumber
+      }), {
+        status: 200,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: error.message 
+      }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    }
+  }),
+});
+
+// Get tickets by status and date (keduanya di URL)
+http.route({
+  pathPrefix: "/api/tickets/status-date/",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const url = new URL(request.url);
+      const pathAfterPrefix = url.pathname.replace("/api/tickets/status-date/", "");
+      
+      // Format: status/date (contoh: 1/28012025)
+      const pathParts = pathAfterPrefix.split("/");
+      
+      if (pathParts.length !== 2) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "URL format should be: /api/tickets/status-date/{status}/{date}" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      const [statusStr, date] = pathParts;
+
+      // Validasi status
+      if (!statusStr || isNaN(Number(statusStr))) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Valid status parameter (0, 1, 2, 3) is required" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      const statusNumber = Number(statusStr);
+      
+      if (![0, 1, 2, 3].includes(statusNumber)) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Status must be 0, 1, 2, or 3" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      // Validasi date
+      if (!date) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Date parameter is required (format: DDMMYYYY)" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      if (date.length !== 8 || !/^\d{8}$/.test(date)) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Date must be in DDMMYYYY format (example: 28012025)" 
+        }), {
+          status: 400,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          }
+        });
+      }
+
+      const result = await ctx.runQuery(api.tickets.listTicketsByStatusAndDate, { 
+        status: statusNumber,
+        date: date 
+      });
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: result,
+        count: result.length,
+        status: statusNumber,
+        date: date
+      }), {
+        status: 200,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: error.message 
+      }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        }
+      });
+    }
+  }),
+});
+
 // Create new ticket
 http.route({
   path: "/api/create-ticket",
