@@ -1,5 +1,6 @@
 {
   "files": [],
+  "exclude": ["../backend"],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
