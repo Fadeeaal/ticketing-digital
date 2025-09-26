@@ -10,7 +10,7 @@ export interface Ticket {
   _creationTime: number;
   activity_type: boolean; // T : inbound / F : outbound
   license_plate: string;
-  truck_type: string;
+  vehicle: string;
   driver_id: string;
   principal: string;
   vendor: string;

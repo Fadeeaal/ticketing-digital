@@ -594,4 +594,34 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/api/principals",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    const principals = await ctx.runQuery(api.principal.getAll); // Memanggil fungsi yang baru kita buat
+    return new Response(JSON.stringify(principals), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+    });
+  }),
+});
+
+http.route({
+  path: "/api/vehicles",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    const vehicles = await ctx.runQuery(api.vehicle.getAll); // Memanggil fungsi yang baru kita buat
+    return new Response(JSON.stringify(vehicles), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+    });
+  }),
+});
+
 export default http;

@@ -176,7 +176,7 @@
                     </div>
                     <div>
                       <div class="text-sm font-bold text-gray-900 group-hover:text-[#6c366a] transition-colors duration-200">{{ ticket.license_plate }}</div>
-                      <div class="text-xs text-gray-500 mt-1">{{ ticket.truck_type }}</div>
+                      <div class="text-xs text-gray-500 mt-1">{{ ticket.vehicle }}</div>
                     </div>
                   </div>
                 </td>

@@ -15,7 +15,7 @@ export default defineSchema({
 
     // Transport Info
     license_plate: v.string(),
-    truck_type: v.string(),
+    vehicle: v.string(),
     driver_id: v.id("driver"),
     principal: v.optional(v.string()),
     vendor: v.optional(v.string()),
@@ -36,4 +36,12 @@ export default defineSchema({
   .index("arrival_date", ["arrival_date"])
   .index("by_status", ["ticket_status"])
   .index("by_driver_id", ["driver_id"]),
+
+  principals: defineTable({
+    name: v.string(),
+  }),
+
+  vehicle: defineTable({
+    name: v.string(),
+  }),
 });

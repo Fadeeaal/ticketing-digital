@@ -91,7 +91,7 @@
               </div>
               <div>
                 <span class="font-semibold text-green-800">Jenis Truk:</span>
-                <span class="ml-2 text-green-700">{{ ticket.truck_type }}</span>
+                <span class="ml-2 text-green-700">{{ ticket.vehicle }}</span>
               </div>
             </div>
           </div>

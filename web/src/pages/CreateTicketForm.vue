@@ -89,10 +89,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <!-- Jenis Kendaraan -->
               <Dropdown
-                id="truck_type"
+                id="vehicle"
                 label="Jenis Kendaraan"
-                v-model="formData.truck_type"
-                :options="truckTypeOptions"
+                v-model="formData.vehicle"
+                :options="vehicleList.map(p => ({ value: p.name, label: p.name }))"
                 :required="true"
                 placeholder="-- Pilih Jenis Kendaraan --"
               />
@@ -128,9 +128,9 @@
                 id="principal"
                 label="Principal"
                 v-model="formData.principal"
-                :options="principalOptions"
+                :options="principalList.map(p => ({ value: p.name, label: p.name }))"
                 :required="formData.activity_type === 'true'"
-                :disabled="formData.activity_type !== 'true'"
+                :disabled="formData.activity_type !== 'true' || isLoadingPrincipals" 
                 :disabled-note="formData.activity_type === 'false' ? '(Dinonaktifkan untuk Outbound)' : ''"
                 placeholder="-- Pilih Principal --"
               />
@@ -237,7 +237,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import FormInput from '../components/InputField.vue'
 import Dropdown from '../components/Dropdown.vue'
@@ -247,6 +247,10 @@ import { api } from '../../../backend/convex/_generated/api'
 
 const router = useRouter();
 
+const vehicleList = ref<{ _id: string, name: string }[]>([]);
+const principalList = ref<{ _id: string, name: string }[]>([]);
+const isLoadingPrincipals = ref(true);
+
 const formData = reactive({
   activity_type: '',
   driver_name: '',
@@ -255,7 +259,7 @@ const formData = reactive({
   license_plate_letters1: '',
   license_plate_numbers: '',
   license_plate_letters2: '',
-  truck_type: '',
+  vehicle: '',
   principal: '',
   vendor: '',
   sj_available: false,
@@ -269,20 +273,56 @@ const activityTypeOptions = [
   { value: 'false', label: 'Outbound' }
 ]
 
+const fetchPrincipals = async () => {
+  try {
+    const convexUrl = import.meta.env.VITE_CONVEX_URL;
+
+    const httpBase = convexUrl.replace('.convex.cloud', '.convex.site');
+    const response = await fetch(`${httpBase}/api/principals`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gagal mengambil data principal: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    principalList.value = Array.isArray(data) ? data : data?.data ?? [];
+  } catch (error) {
+    console.error("Gagal mengambil data principal:", error);
+    principalList.value = [];
+  } finally {
+    isLoadingPrincipals.value = false;
+  }
+};
+
+const fetchVehicles = async () => {
+  try {
+    const convexUrl = import.meta.env.VITE_CONVEX_URL;
+
+    const httpBase = convexUrl.replace('.convex.cloud', '.convex.site');
+    const response = await fetch(`${httpBase}/api/vehicles`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gagal mengambil data vehicle: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    vehicleList.value = Array.isArray(data) ? data : data?.data ?? [];
+  } catch (error) {
+    console.error("Gagal mengambil data vehicle:", error);
+    vehicleList.value = [];
+  } finally {
+    isLoadingPrincipals.value = false;
+  }
+};
+
 const truckTypeOptions = [
   { value: 'Tipe A', label: 'Tipe A' },
   { value: 'Tipe B', label: 'Tipe B' },
   { value: 'Tipe C', label: 'Tipe C' },
   { value: 'Tipe D', label: 'Tipe D' },
   { value: 'Tipe E', label: 'Tipe E' }
-]
-
-const principalOptions = [
-  { value: 'PT ABC Logistics', label: 'PT ABC Logistics' },
-  { value: 'PT Maju Jaya Transport', label: 'PT Maju Jaya Transport' },
-  { value: 'PT Global Cargo', label: 'PT Global Cargo' },
-  { value: 'PT Sentosa Logistics', label: 'PT Sentosa Logistics' },
-  { value: 'PT Prima Express', label: 'PT Prima Express' }
 ]
 
 const vendorOptions = [
@@ -328,7 +368,7 @@ const submitTicket = async () => {
       nik: formData.nik,
       handphone_number: formData.handphone_number,
       license_plate: fullLicensePlate.value,
-      truck_type: formData.truck_type,
+      vehicle: formData.vehicle,
       principal: formData.principal,
       vendor: formData.vendor,
       sj_available: formData.sj_available,
@@ -396,7 +436,7 @@ const submitTicket = async () => {
     formData.license_plate_letters1 = ''
     formData.license_plate_numbers = ''
     formData.license_plate_letters2 = ''
-    formData.truck_type = ''
+    formData.vehicle = ''
     formData.principal = ''
     formData.vendor = ''
     formData.sj_available = false
@@ -424,6 +464,11 @@ const closeModal = () => {
 const clearError = () => {
   errorMessage.value = ''
 }
+
+onMounted(() => {
+  fetchPrincipals();
+  fetchVehicles();
+});
 </script>
 
 <style scoped>

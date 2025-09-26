@@ -15,7 +15,9 @@ import type {
 } from "convex/server";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
+import type * as principal from "../principal.js";
 import type * as tickets from "../tickets.js";
+import type * as vehicle from "../vehicle.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -28,7 +30,9 @@ import type * as tickets from "../tickets.js";
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
+  principal: typeof principal;
   tickets: typeof tickets;
+  vehicle: typeof vehicle;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

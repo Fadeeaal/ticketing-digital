@@ -4,7 +4,7 @@ export interface TicketFormData {
   nik: string;
   handphone_number: string;
   license_plate: string;
-  truck_type: string;
+  vehicle: string;
   principal: string;
   vendor: string;
   sj_available: boolean;

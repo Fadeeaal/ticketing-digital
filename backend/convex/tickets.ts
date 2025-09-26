@@ -52,7 +52,7 @@ export const createTicket = mutation({
     
     // Transport info
     license_plate: v.string(),
-    truck_type: v.string(),
+    vehicle: v.string(),
     principal: v.optional(v.string()),
     vendor: v.optional(v.string()),
 
@@ -106,7 +106,7 @@ export const createTicket = mutation({
       // Transport info
       activity_type: args.activity_type, // true = inbound
       license_plate: args.license_plate.toUpperCase(), // Auto uppercase
-      truck_type: args.truck_type,
+      vehicle: args.vehicle,
       driver_id: driverId,
       principal: args.principal,
       vendor: args.vendor,
@@ -296,7 +296,7 @@ export const updateTicket = mutation({
     
     // Transport info
     license_plate: v.optional(v.string()),
-    truck_type: v.optional(v.string()),
+    vehicle: v.optional(v.string()),
     principal: v.optional(v.string()),
     vendor: v.optional(v.string()),
 
@@ -378,8 +378,8 @@ export const updateTicket = mutation({
     if (args.license_plate !== undefined) {
       updateData.license_plate = args.license_plate.toUpperCase();
     }
-    if (args.truck_type !== undefined) {
-      updateData.truck_type = args.truck_type;
+    if (args.vehicle !== undefined) {
+      updateData.vehicle = args.vehicle;
     }
     if (args.principal !== undefined) {
       updateData.principal = args.principal;

@@ -106,9 +106,9 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <!-- Jenis Kendaraan -->
               <Dropdown
-                id="truck_type"
+                id="vehicle"
                 label="Jenis Kendaraan"
-                v-model="formData.truck_type"
+                v-model="formData.vehicle"
                 :options="truckTypeOptions"
                 :required="true"
                 placeholder="-- Pilih Jenis Kendaraan --"
@@ -278,7 +278,7 @@ const formData = reactive({
   license_plate_letters1: '',
   license_plate_numbers: '',
   license_plate_letters2: '',
-  truck_type: '',
+  vehicle: '',
   principal: '',
   vendor: '',
   sj_available: false,
@@ -373,7 +373,7 @@ const loadTicketData = async () => {
     formData.license_plate_letters1 = licensePlateParts.letters1
     formData.license_plate_numbers = licensePlateParts.numbers
     formData.license_plate_letters2 = licensePlateParts.letters2
-    formData.truck_type = result.truck_type || ''
+    formData.vehicle = result.vehicle || ''
     formData.principal = result.principal || ''
     formData.vendor = result.vendor || ''
     formData.sj_available = result.sj_available || false
@@ -422,7 +422,7 @@ const updateTicket = async () => {
       nik: formData.nik,
       handphone_number: formData.handphone_number,
       license_plate: fullLicensePlate.value,
-      truck_type: formData.truck_type,
+      vehicle: formData.vehicle,
       principal: formData.principal,
       vendor: formData.vendor,
       sj_available: formData.sj_available,
