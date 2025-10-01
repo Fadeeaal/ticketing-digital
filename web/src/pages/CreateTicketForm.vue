@@ -122,14 +122,13 @@
               Informasi Perusahaan
             </h3>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <!-- Principal -->
               <Dropdown
                 id="principal"
                 label="Principal"
                 v-model="formData.principal"
                 :options="principalList.map(p => ({ value: p.name, label: p.name }))"
-                :required="formData.activity_type === 'true'"
                 :disabled="formData.activity_type !== 'true' || isLoadingPrincipals" 
                 :disabled-note="formData.activity_type === 'false' ? '(Dinonaktifkan untuk Outbound)' : ''"
                 placeholder="-- Pilih Principal --"
@@ -140,10 +139,20 @@
                 id="vendor"
                 label="Vendor"
                 v-model="formData.vendor"
-                :options="vendorOptions"
-                :required="formData.activity_type === 'false'"
-                :disabled="formData.activity_type === ''"
+                :options="vendorList.map(p => ({ value: p.name, label: p.name }))"
+                :disabled="formData.activity_type !== 'true'"
+                :disabled-note="formData.activity_type === 'false' ? '(Dinonaktifkan untuk Outbound)' : ''"
                 placeholder="-- Pilih Vendor --"
+              />
+
+              <FormInput
+                id="receiver"
+                label="Perusahaan Penerima"
+                v-model="formData.receiver"
+                :required="formData.activity_type === 'false'"
+                :disabled="formData.activity_type !== 'false'"
+                :disabled-note="formData.activity_type === 'true' ? '(Dinonaktifkan untuk Inbound)' : ''"
+                placeholder= "Contoh : PT Astro"
               />
             </div>
           </div>
@@ -249,6 +258,7 @@ const router = useRouter();
 
 const vehicleList = ref<{ _id: string, name: string }[]>([]);
 const principalList = ref<{ _id: string, name: string }[]>([]);
+const vendorList = ref<{ _id: string, name: string }[]>([]);
 const isLoadingPrincipals = ref(true);
 
 const formData = reactive({
@@ -262,6 +272,7 @@ const formData = reactive({
   vehicle: '',
   principal: '',
   vendor: '',
+  receiver: '',
   sj_available: false,
   ktp_available: false,
   sim_available: false
@@ -272,6 +283,28 @@ const activityTypeOptions = [
   { value: 'true', label: 'Inbound' },
   { value: 'false', label: 'Outbound' }
 ]
+
+const fetchVendors = async () => {
+  try {
+    const convexUrl = import.meta.env.VITE_CONVEX_URL;
+
+    const httpBase = convexUrl.replace('.convex.cloud', '.convex.site');
+    const response = await fetch(`${httpBase}/api/vendors`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gagal mengambil data vendor: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    vendorList.value = Array.isArray(data) ? data : data?.data ?? [];
+  } catch (error) {
+    console.error("Gagal mengambil data vendor:", error);
+    vendorList.value = [];
+  } finally {
+    isLoadingPrincipals.value = false;
+  }
+};
 
 const fetchPrincipals = async () => {
   try {
@@ -316,14 +349,6 @@ const fetchVehicles = async () => {
     isLoadingPrincipals.value = false;
   }
 };
-
-const truckTypeOptions = [
-  { value: 'Tipe A', label: 'Tipe A' },
-  { value: 'Tipe B', label: 'Tipe B' },
-  { value: 'Tipe C', label: 'Tipe C' },
-  { value: 'Tipe D', label: 'Tipe D' },
-  { value: 'Tipe E', label: 'Tipe E' }
-]
 
 const vendorOptions = [
   { value: 'PT XYZ Transport', label: 'PT XYZ Transport' },
@@ -371,6 +396,7 @@ const submitTicket = async () => {
       vehicle: formData.vehicle,
       principal: formData.principal,
       vendor: formData.vendor,
+      receiver: formData.receiver,
       sj_available: formData.sj_available,
       ktp_available: formData.ktp_available,
       sim_available: formData.sim_available
@@ -392,13 +418,13 @@ const submitTicket = async () => {
     }
 
     // Validate principal for inbound
-    if (activityTypeBoolean && !formData.principal) {
-      throw new Error('Principal wajib diisi untuk aktivitas Inbound')
+    if (activityTypeBoolean && !formData.principal && !formData.vendor) {
+      throw new Error('Principal atau vendor wajib diisi untuk aktivitas Inbound')
     }
 
     // Validate vendor for outbound
-    if (!activityTypeBoolean && !formData.vendor) {
-      throw new Error('Vendor wajib diisi untuk aktivitas Outbound')
+    if (!activityTypeBoolean && !formData.receiver) {
+      throw new Error('Penerima wajib diisi untuk aktivitas Outbound')
     }
 
     // Call Convex mutation with direct HTTP call as fallback
@@ -439,6 +465,7 @@ const submitTicket = async () => {
     formData.vehicle = ''
     formData.principal = ''
     formData.vendor = ''
+  formData.receiver = ''
     formData.sj_available = false
     formData.ktp_available = false
     formData.sim_available = false
@@ -468,6 +495,7 @@ const clearError = () => {
 onMounted(() => {
   fetchPrincipals();
   fetchVehicles();
+  fetchVendors();
 });
 </script>
 

@@ -46,10 +46,13 @@
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-[#6c366a]">
+        <div
+          class="bg-white p-6 rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-[#6c366a] cursor-pointer"
+          @click="clearFilter"
+        >
           <div class="flex items-center justify-between">
             <div>
-              <div class="text-3xl font-bold text-[#6c366a] mb-1">{{ tickets.length }}</div>
+              <div class="text-3xl font-bold text-[#6c366a] mb-1">{{ allTickets.length }}</div>
               <div class="text-sm font-medium text-gray-500">Total Ticket</div>
             </div>
             <div class="p-3 bg-gradient-to-br from-purple-100 to-[#6c366a]/20 rounded-xl">
@@ -60,7 +63,10 @@
           </div>
         </div>
         
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-blue-400">
+        <div
+          class="bg-white p-6 rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-blue-400 cursor-pointer"
+          @click="applyFilterStatus(0)"
+        >
           <div class="flex items-center justify-between">
             <div>
               <div class="text-3xl font-bold text-blue-600 mb-1">{{ getTicketsByStatus(0).length }}</div>
@@ -75,7 +81,10 @@
           </div>
         </div>
         
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-orange-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-orange-400">
+        <div
+          class="bg-white p-6 rounded-2xl shadow-lg border border-orange-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-orange-400 cursor-pointer"
+          @click="applyFilterStatuses([1,2])"
+        >
           <div class="flex items-center justify-between">
             <div>
               <div class="text-3xl font-bold text-orange-600 mb-1">{{ getTicketsByStatus(1).length + getTicketsByStatus(2).length }}</div>
@@ -89,7 +98,10 @@
           </div>
         </div>
         
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-green-400">
+        <div
+          class="bg-white p-6 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-green-400 cursor-pointer"
+          @click="applyFilterStatus(3)"
+        >
           <div class="flex items-center justify-between">
             <div>
               <div class="text-3xl font-bold text-green-600 mb-1">{{ getTicketsByStatus(3).length }}</div>
@@ -250,9 +262,11 @@ import type { Ticket } from '../interface/Ticket'
 import { api } from '../../../backend/convex/_generated/api'
 
 const tickets = ref<Ticket[]>([])
+const allTickets = ref<Ticket[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 const selectedTicket = ref<Ticket | null>(null)
+const activeFilterLabel = ref('')
 
 const currentDate = computed(() => {
   const today = new Date()
@@ -265,8 +279,8 @@ const currentDate = computed(() => {
 })
 
 const getCompany = (ticket: Ticket): string => {
-  if (ticket.activity_type === true) return ticket.principal
-  if (ticket.activity_type === false) return ticket.vendor
+  if (ticket.activity_type === true) return ticket.principal || ticket.vendor
+  if (ticket.activity_type === false) return ticket.receiver
   return 'Status Tidak Diketahui'
 }
 
@@ -283,10 +297,13 @@ const loadTodayTickets = async () => {
 
     // Ambil data ticket hari ini langsung dari Convex API (tanpa fetch URL)
     const result = await convex.query(api.tickets.listTodayTickets, {})
-    tickets.value = result.map((ticket: any) => ({
+    const mapped = result.map((ticket: any) => ({
       ...ticket,
       principal: ticket.principal ?? ''
     }))
+    allTickets.value = mapped
+    tickets.value = mapped
+    activeFilterLabel.value = ''
 
   } catch (error: any) {
     console.error('Failed to load tickets:', error)
@@ -305,7 +322,7 @@ const addTickets = () => {
 }
 
 const getTicketsByStatus = (status: number) => {
-  return tickets.value.filter((ticket: Ticket) => ticket.ticket_status === status)
+  return allTickets.value.filter((ticket: Ticket) => ticket.ticket_status === status)
 }
 
 const getStatusText = (status: number): string => {
@@ -339,4 +356,73 @@ const closeTicketModal = () => {
 onMounted(() => {
   loadTodayTickets()
 })
+
+// Gunakan arrival_date dari data yang sudah dimuat (server-side) agar tidak bentrok timezone
+const currentArrivalDateAsDDMMYYYY = () => {
+  if (allTickets.value.length > 0 && allTickets.value[0].arrival_date) {
+    // arrival_date format: DD-MM-YYYY → convert ke DDMMYYYY
+    const parts = String(allTickets.value[0].arrival_date).split('-')
+    if (parts.length === 3) {
+      return `${parts[0]}${parts[1]}${parts[2]}`
+    }
+  }
+  // Fallback: compute dari client (mungkin tidak match jika timezone server berbeda)
+  const d = new Date()
+  const dd = String(d.getDate()).padStart(2, '0')
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const yyyy = String(d.getFullYear())
+  return `${dd}${mm}${yyyy}`
+}
+
+const applyFilterStatus = async (status: number) => {
+  try {
+    loading.value = true
+    errorMessage.value = ''
+    const date = currentArrivalDateAsDDMMYYYY()
+    const result = await convex.query(api.tickets.listTicketsByStatusAndDate, { status, date })
+    tickets.value = result.map((t: any) => ({ ...t, principal: t.principal ?? '' }))
+    activeFilterLabel.value = labelForStatus(status)
+  } catch (error: any) {
+    console.error('Failed to filter tickets:', error)
+    errorMessage.value = error.message || 'Gagal memfilter ticket'
+  } finally {
+    loading.value = false
+  }
+}
+
+const applyFilterStatuses = async (statuses: number[]) => {
+  try {
+    loading.value = true
+    errorMessage.value = ''
+    const date = currentArrivalDateAsDDMMYYYY()
+    const [res1, res2] = await Promise.all([
+      convex.query(api.tickets.listTicketsByStatusAndDate, { status: statuses[0], date }),
+      convex.query(api.tickets.listTicketsByStatusAndDate, { status: statuses[1], date })
+    ])
+    const merged = [...res1, ...res2]
+    // De-duplicate by _id
+    const seen = new Set()
+    tickets.value = merged
+      .filter((t: any) => (seen.has(t._id) ? false : (seen.add(t._id), true)))
+      .map((t: any) => ({ ...t, principal: t.principal ?? '' }))
+    activeFilterLabel.value = 'Status: Sedang Proses (1 & 2)'
+  } catch (error: any) {
+    console.error('Failed to filter tickets:', error)
+    errorMessage.value = error.message || 'Gagal memfilter ticket'
+  } finally {
+    loading.value = false
+  }
+}
+
+const clearFilter = () => {
+  loadTodayTickets()
+}
+
+function labelForStatus(status: number): string {
+  if (status === 0) return 'Status: Tiba di Lokasi'
+  if (status === 1) return 'Status: Sedang Unloading'
+  if (status === 2) return 'Status: Selesai Unloading'
+  if (status === 3) return 'Status: Selesai'
+  return `Status: ${status}`
+}
 </script>

@@ -55,6 +55,7 @@ export const createTicket = mutation({
     vehicle: v.string(),
     principal: v.optional(v.string()),
     vendor: v.optional(v.string()),
+    receiver: v.optional(v.string()),
 
     // Document verification
     sj_available: v.boolean(),
@@ -64,8 +65,8 @@ export const createTicket = mutation({
   handler: async (ctx, args) => {
     // Outbound harus ada vendor
     if (args.activity_type !== true) { //outbound
-      if (!args.vendor) {
-        throw new Error("Vendor wajib diisi untuk aktivitas outbound!");
+      if (!args.receiver) {
+        throw new Error("Penerima wajib diisi untuk aktivitas outbound!");
       }
     }
 
@@ -110,6 +111,7 @@ export const createTicket = mutation({
       driver_id: driverId,
       principal: args.principal,
       vendor: args.vendor,
+      receiver: args.receiver,
 
       // Document verification
       sj_available: args.sj_available,
@@ -299,6 +301,7 @@ export const updateTicket = mutation({
     vehicle: v.optional(v.string()),
     principal: v.optional(v.string()),
     vendor: v.optional(v.string()),
+    receiver: v.optional(v.string()),
 
     // Document verification
     sj_available: v.optional(v.boolean()),
@@ -321,6 +324,19 @@ export const updateTicket = mutation({
       throw new Error("NIK harus 16 digit angka!");
     }
 
+    if (existingTicket.activity_type !== true) { //outbound
+      if (!args.receiver) {
+        throw new Error("Penerima wajib diisi untuk aktivitas outbound!");
+      }
+    }
+
+    // Inbound minimal harus ada 1 principal / vendor
+    if (existingTicket.activity_type === true) { //inbound
+      if (!args.principal && !args.vendor) {
+        throw new Error("Principal atau vendor wajib diisi untuk aktivitas inbound!");
+      }
+    }
+
     // Validasi document requirements jika diubah
     const sjAvailable = args.sj_available ?? existingTicket.sj_available;
     const ktpAvailable = args.ktp_available ?? existingTicket.ktp_available;
@@ -337,13 +353,14 @@ export const updateTicket = mutation({
     // Validasi principal/vendor berdasarkan activity_type
     if (existingTicket.activity_type === true) { // inbound
       const principal = args.principal ?? existingTicket.principal;
-      if (!principal) {
-        throw new Error("Principal wajib diisi untuk aktivitas inbound!");
+      const vendor = args.vendor ?? existingTicket.vendor;
+      if (!principal && !vendor) {
+        throw new Error("Principal atau vendor wajib diisi untuk aktivitas inbound!");
       }
     } else { // outbound
-      const vendor = args.vendor ?? existingTicket.vendor;
-      if (!vendor) {
-        throw new Error("Vendor wajib diisi untuk aktivitas outbound!");
+      const receiver = args.receiver ?? existingTicket.receiver;
+      if (!receiver) {
+        throw new Error("Penerima wajib diisi untuk aktivitas outbound!");
       }
     }
 
@@ -387,6 +404,9 @@ export const updateTicket = mutation({
     if (args.vendor !== undefined) {
       updateData.vendor = args.vendor;
     }
+    if (args.receiver !== undefined) {
+      updateData.receiver = args.receiver;
+    }
     if (args.sj_available !== undefined) {
       updateData.sj_available = args.sj_available;
     }
@@ -395,11 +415,6 @@ export const updateTicket = mutation({
     }
     if (args.sim_available !== undefined) {
       updateData.sim_available = args.sim_available;
-    }
-    
-    // Update driver_id jika berubah
-    if (driverId !== existingTicket.driver_id) {
-      updateData.driver_id = driverId;
     }
 
     // Update ticket

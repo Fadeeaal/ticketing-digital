@@ -18,6 +18,7 @@ import type * as http from "../http.js";
 import type * as principal from "../principal.js";
 import type * as tickets from "../tickets.js";
 import type * as vehicle from "../vehicle.js";
+import type * as vendor from "../vendor.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   principal: typeof principal;
   tickets: typeof tickets;
   vehicle: typeof vehicle;
+  vendor: typeof vendor;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

@@ -14,6 +14,7 @@ export interface Ticket {
   driver_id: string;
   principal: string;
   vendor: string;
+  receiver: string;
   sj_available: boolean;
   ktp_available: boolean;
   sim_available: boolean;

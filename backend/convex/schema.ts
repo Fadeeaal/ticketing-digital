@@ -19,6 +19,7 @@ export default defineSchema({
     driver_id: v.id("driver"),
     principal: v.optional(v.string()),
     vendor: v.optional(v.string()),
+    receiver: v.optional(v.string()),
 
     // Document verification
     sj_available: v.boolean(),
@@ -44,4 +45,9 @@ export default defineSchema({
   vehicle: defineTable({
     name: v.string(),
   }),
+
+  vendor: defineTable({
+    name: v.string(),
+  }),
+
 });

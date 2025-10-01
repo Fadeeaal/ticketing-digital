@@ -7,6 +7,7 @@ export interface TicketFormData {
   vehicle: string;
   principal: string;
   vendor: string;
+  receiver: string;
   sj_available: boolean;
   ktp_available: boolean;
   sim_available: boolean;

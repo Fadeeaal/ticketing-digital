@@ -205,8 +205,8 @@ defineExpose({ FontAwesomeIcon })
 
 // Helper functions
 const getCompany = (ticket: Ticket): string => {
-  if (ticket.activity_type === true) return ticket.principal
-  if (ticket.activity_type === false) return ticket.vendor
+  if (ticket.activity_type === true) return ticket.principal || ticket.vendor
+  if (ticket.activity_type === false) return ticket.receiver
   return 'Status Tidak Diketahui'
 }
 

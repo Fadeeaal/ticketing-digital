@@ -624,4 +624,19 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/api/vendors",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    const vendor = await ctx.runQuery(api.vendor.getAll); // Memanggil fungsi yang baru kita buat
+    return new Response(JSON.stringify(vendor), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+    });
+  }),
+});
+
 export default http;
