@@ -350,14 +350,6 @@ const fetchVehicles = async () => {
   }
 };
 
-const vendorOptions = [
-  { value: 'PT XYZ Transport', label: 'PT XYZ Transport' },
-  { value: 'PT Delta Logistics', label: 'PT Delta Logistics' },
-  { value: 'PT Omega Express', label: 'PT Omega Express' },
-  { value: 'PT Beta Cargo', label: 'PT Beta Cargo' },
-  { value: 'PT Gamma Transport', label: 'PT Gamma Transport' }
-]
-
 const isSubmitting = ref(false)
 const showSuccess = ref(false)
 const errorMessage = ref('')

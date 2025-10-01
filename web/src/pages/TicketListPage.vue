@@ -48,6 +48,7 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div
           class="bg-white p-6 rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-[#6c366a] cursor-pointer"
+          :class="selectedCard === 'all' ? 'border-2 border-[#6c366a]' : ''"
           @click="clearFilter"
         >
           <div class="flex items-center justify-between">
@@ -65,6 +66,7 @@
         
         <div
           class="bg-white p-6 rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-blue-400 cursor-pointer"
+          :class="selectedCard === '0' ? 'border-2 border-blue-400' : ''"
           @click="applyFilterStatus(0)"
         >
           <div class="flex items-center justify-between">
@@ -83,6 +85,7 @@
         
         <div
           class="bg-white p-6 rounded-2xl shadow-lg border border-orange-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-orange-400 cursor-pointer"
+          :class="selectedCard === '1-2' ? 'border-2 border-orange-400' : ''"
           @click="applyFilterStatuses([1,2])"
         >
           <div class="flex items-center justify-between">
@@ -100,6 +103,7 @@
         
         <div
           class="bg-white p-6 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-green-400 cursor-pointer"
+          :class="selectedCard === '3' ? 'border-2 border-green-400' : ''"
           @click="applyFilterStatus(3)"
         >
           <div class="flex items-center justify-between">
@@ -145,6 +149,12 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
             Daftar Ticket
+            <span
+              v-if="activeFilterLabel"
+              class="ml-3 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 border border-white/40 text-white"
+            >
+              {{ activeFilterLabel }}
+            </span>
           </h2>
         </div>
         
@@ -267,6 +277,7 @@ const loading = ref(true)
 const errorMessage = ref('')
 const selectedTicket = ref<Ticket | null>(null)
 const activeFilterLabel = ref('')
+const selectedCard = ref<'all' | '0' | '1-2' | '3'>('all')
 
 const currentDate = computed(() => {
   const today = new Date()
@@ -297,17 +308,18 @@ const loadTodayTickets = async () => {
 
     // Ambil data ticket hari ini langsung dari Convex API (tanpa fetch URL)
     const result = await convex.query(api.tickets.listTodayTickets, {})
-    const mapped = result.map((ticket: any) => ({
+    const mapped = (result as Ticket[]).map((ticket: Ticket) => ({
       ...ticket,
       principal: ticket.principal ?? ''
     }))
     allTickets.value = mapped
     tickets.value = mapped
     activeFilterLabel.value = ''
+    selectedCard.value = 'all'
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load tickets:', error)
-    errorMessage.value = error.message || 'Gagal memuat data ticket'
+    errorMessage.value = error instanceof Error ? error.message : 'Gagal memuat data ticket'
   } finally {
     loading.value = false
   }
@@ -380,11 +392,12 @@ const applyFilterStatus = async (status: number) => {
     errorMessage.value = ''
     const date = currentArrivalDateAsDDMMYYYY()
     const result = await convex.query(api.tickets.listTicketsByStatusAndDate, { status, date })
-    tickets.value = result.map((t: any) => ({ ...t, principal: t.principal ?? '' }))
+    tickets.value = (result as Ticket[]).map((t: Ticket) => ({ ...t, principal: t.principal ?? '' }))
     activeFilterLabel.value = labelForStatus(status)
-  } catch (error: any) {
+    selectedCard.value = String(status) as '0' | '3'
+  } catch (error: unknown) {
     console.error('Failed to filter tickets:', error)
-    errorMessage.value = error.message || 'Gagal memfilter ticket'
+    errorMessage.value = error instanceof Error ? error.message : 'Gagal memfilter ticket'
   } finally {
     loading.value = false
   }
@@ -399,16 +412,16 @@ const applyFilterStatuses = async (statuses: number[]) => {
       convex.query(api.tickets.listTicketsByStatusAndDate, { status: statuses[0], date }),
       convex.query(api.tickets.listTicketsByStatusAndDate, { status: statuses[1], date })
     ])
-    const merged = [...res1, ...res2]
-    // De-duplicate by _id
-    const seen = new Set()
+    const merged = [...(res1 as Ticket[]), ...(res2 as Ticket[])]
+    const seen = new Set<string>()
     tickets.value = merged
-      .filter((t: any) => (seen.has(t._id) ? false : (seen.add(t._id), true)))
-      .map((t: any) => ({ ...t, principal: t.principal ?? '' }))
-    activeFilterLabel.value = 'Status: Sedang Proses (1 & 2)'
-  } catch (error: any) {
+      .filter((t: Ticket) => (seen.has(t._id) ? false : (seen.add(t._id), true)))
+      .map((t: Ticket) => ({ ...t, principal: t.principal ?? '' }))
+    activeFilterLabel.value = 'Status: Sedang Proses'
+    selectedCard.value = '1-2'
+  } catch (error: unknown) {
     console.error('Failed to filter tickets:', error)
-    errorMessage.value = error.message || 'Gagal memfilter ticket'
+    errorMessage.value = error instanceof Error ? error.message : 'Gagal memfilter ticket'
   } finally {
     loading.value = false
   }
@@ -416,6 +429,7 @@ const applyFilterStatuses = async (statuses: number[]) => {
 
 const clearFilter = () => {
   loadTodayTickets()
+  selectedCard.value = 'all'
 }
 
 function labelForStatus(status: number): string {

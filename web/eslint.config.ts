@@ -3,18 +3,29 @@ import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescri
 import pluginVue from 'eslint-plugin-vue'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
 // More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
 
 export default defineConfigWithVueTs(
+  // Typed linting for TS files only
   {
-    name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
+    name: 'typed-ts',
+    files: ['**/*.{ts,mts,tsx}'],
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: __dirname,
-        project: './tsconfig.json',
+        project: ['./tsconfig.app.json', './tsconfig.node.json'],
+      },
+    },
+  },
+
+  // Disable typed linting for .vue SFCs to avoid tsconfig include warnings
+  {
+    name: 'vue-untyped',
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        // Do not set `project` here so .vue files are not type-checked by ESLint
       },
     },
   },

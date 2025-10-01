@@ -30,6 +30,11 @@ const routes = [
     component: EditTicketForm
   },
   {
+    path: '/print-ticket/:id',
+    name: 'PrintTicket',
+    component: () => import('../pages/PrintTicket.vue')
+  },
+  {
   path: '/:pathMatch(.*)*',
   name: 'NotFound',
   component: PageError

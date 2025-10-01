@@ -11,16 +11,34 @@
             Detail Ticket
           </h2>
           <div class="flex items-center gap-3">
-            <!-- Enhanced Edit Button - Only show if ticket status is 0 (not started) -->
             <button
               v-if="ticket.ticket_status === 0"
               @click="editTicket"
-              class="px-4 py-2 bg-gradient-to-r from-[#6c366a] to-purple-500 border-2 border-transparent rounded-lg flex items-center gap-2 text-white font-semibold text-sm outline-none shadow-md hover:bg-white hover:text-[#6c366a] hover:border-[#6c366a] hover:from-white hover:to-white focus:ring-2 focus:ring-purple-300"
+              class="px-4 py-2 bg-white border-2 border-[#6c366a] rounded-lg flex items-center gap-2 text-[#6c366a] font-semibold text-sm outline-none"
               title="Edit Ticket"
             >
-              <font-awesome-icon icon="fa-solid fa-pen-to-square" class="w-5 h-5" />
+              <!-- printer icon (SVG) -->
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 9V2h12v7M6 18h12v4H6v-4zM6 14H5a3 3 0 01-3-3V9a3 3 0 013-3h14a3 3 0 013 3v2a3 3 0 01-3 3h-1" />
+              </svg>
               <span>Edit</span>
             </button>
+
+            <button
+              v-if="ticket.ticket_status < 3"
+              @click="printTicket"
+              class="px-4 py-2 bg-white border-2 border-[#6c366a] rounded-lg flex items-center gap-2 text-[#6c366a] font-semibold text-sm outline-none"
+              title="Print Ticket"
+            >
+              <!-- printer icon (SVG) -->
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 9V2h12v7M6 18h12v4H6v-4zM6 14H5a3 3 0 01-3-3V9a3 3 0 013-3h14a3 3 0 013 3v2a3 3 0 01-3 3h-1" />
+              </svg>
+              <span>Print</span>
+            </button>
+            
             <!-- Close Button -->
             <button @click="$emit('close')" class="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +54,7 @@
         <!-- QR Code Section -->
         <div class="text-center mb-8">
           <div v-if="ticket.ticket_status < 3" class="mb-4">
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Scan QR Code untuk Update Status!</h3>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Scan QR Code untuk update status {{ getActivityType(ticket.activity_type) }} ticket ini!</h3>
           </div>
           
           <div class="flex justify-center">
@@ -44,7 +62,7 @@
               <qrcode-vue :value="getQRUrl(ticket._id, ticket.ticket_status)" :size="150" />
             </div>
             <div v-else class="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border-2 border-green-200 text-green-600 font-bold text-lg">
-              AKTIVITAS SUDAH SELESAI
+              Aktivitas {{ getActivityType(ticket.activity_type) }} sudah selesai. Ticket tidak dapat diupdate lagi.
             </div>
           </div>
         </div>
@@ -248,6 +266,13 @@ const editTicket = () => {
   if (props.ticket) {
     emit('close') // Close the modal first
     router.push(`/edit-ticket/${props.ticket._id}`)
+  }
+}
+
+const printTicket = () => {
+  if (props.ticket) {
+    // open print-friendly route
+    router.push(`/print-ticket/${props.ticket._id}`)
   }
 }
 </script>

@@ -41,11 +41,12 @@
           
           <!-- Activity Type Section (Read Only) -->
           <div class="mb-8">
-            <label class="block text-sm font-bold text-[#6c366a] mb-2">Tipe Aktivitas</label>
-            <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div class="block text-sm font-bold text-[#6c366a] mb-2">Tipe Aktivitas</div>
+            <fieldset class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <legend class="sr-only">Tipe Aktivitas</legend>
               <span class="text-gray-700 font-medium">{{ getActivityType(originalTicket!.activity_type) }}</span>
               <span class="ml-2 text-sm text-gray-500">(Tidak dapat diubah)</span>
-            </div>
+            </fieldset>
           </div>
 
           <!-- Driver Information Section -->
@@ -270,6 +271,7 @@ import Dropdown from '../components/Dropdown.vue'
 import LicensePlate from '../components/LicensePlate.vue'
 import convex from '../convex'
 import { api } from '../../../backend/convex/_generated/api'
+import type { Id } from '../../../backend/convex/_generated/dataModel'
 import type { Ticket } from '../interface/Ticket'
 
 const router = useRouter()
@@ -389,6 +391,76 @@ const parseLicensePlate = (licensePlate: string) => {
   return { letters1: '', numbers: '', letters2: '' }
 }
 
+// --- Validation & API helpers ---
+function validateBeforeUpdate(original: Ticket | null) {
+  // Validate all documents are checked
+  if (!formData.sj_available || (!formData.ktp_available && !formData.sim_available)) {
+    throw new Error('Dokumen SJ wajib tersedia, dan setidaknya salah satu dari KTP atau SIM harus tersedia sebelum melanjutkan')
+  }
+
+  // Validate license plate parts
+  if (!formData.license_plate_letters1 || !formData.license_plate_numbers || !formData.license_plate_letters2) {
+    throw new Error('Plat nomor harus diisi lengkap (huruf-angka-huruf)')
+  }
+
+  // Validate principal for inbound
+  if (original?.activity_type === true && !formData.principal && !formData.vendor) {
+    throw new Error('Principal atau vendor wajib diisi untuk aktivitas Inbound')
+  }
+
+  // Validate vendor for outbound
+  if (original?.activity_type === false && !formData.receiver) {
+    throw new Error('Penerima wajib diisi untuk aktivitas Outbound')
+  }
+}
+
+type UpdateData = {
+  driver_name: string
+  nik: string
+  handphone_number: string
+  license_plate: string
+  vehicle: string
+  principal: string
+  vendor: string
+  receiver: string
+  sj_available: boolean
+  ktp_available: boolean
+  sim_available: boolean
+}
+
+function buildUpdatePayload(): UpdateData {
+  return {
+    driver_name: formData.driver_name,
+    nik: formData.nik,
+    handphone_number: formData.handphone_number,
+    license_plate: fullLicensePlate.value,
+    vehicle: formData.vehicle,
+    principal: formData.principal,
+    vendor: formData.vendor,
+    receiver: formData.receiver,
+    sj_available: formData.sj_available,
+    ktp_available: formData.ktp_available,
+    sim_available: formData.sim_available,
+  }
+}
+
+async function httpUpdateTicket(ticketId: string, updateData: UpdateData): Promise<boolean> {
+  const url = `${import.meta.env.VITE_CONVEX_URL}/api/tickets/update/${ticketId}`.replace('.convex.cloud', '.convex.site')
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updateData),
+  })
+  const data = await response.json()
+  if (response.ok && data?.success) return true
+  throw new Error(data?.error || `HTTP ${response.status}`)
+}
+
+async function convexUpdateTicket(ticketId: Id<'tickets'>, updateData: UpdateData): Promise<boolean> {
+  await convex.mutation(api.tickets.updateTicket, { ticketId, ...updateData })
+  return true
+}
+
 // Load ticket data
 const loadTicketData = async () => {
   try {
@@ -400,7 +472,7 @@ const loadTicketData = async () => {
     }
 
     // Try direct API call first
-    let result
+    let result: Ticket
     try {
       const response = await fetch(`${import.meta.env.VITE_CONVEX_URL}/api/tickets/${ticketId}`.replace('.convex.cloud', '.convex.site'))
       const data = await response.json()
@@ -409,10 +481,10 @@ const loadTicketData = async () => {
         throw new Error(data.error || 'Gagal memuat data ticket')
       }
       
-      result = data.data
-    } catch (fetchError) {
+      result = data.data as Ticket
+    } catch (fetchError: unknown) {
       console.error('Direct API failed, trying Convex client:', fetchError)
-      result = await convex.query(api.tickets.getTicketById, { ticketId: ticketId as any })
+      result = await convex.query(api.tickets.getTicketById, { ticketId: ticketId as Id<'tickets'> }) as Ticket
     }
 
     originalTicket.value = result
@@ -434,9 +506,9 @@ const loadTicketData = async () => {
     formData.ktp_available = result.ktp_available || false
     formData.sim_available = result.sim_available || false
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load ticket:', error)
-    errorMessage.value = error.message || 'Gagal memuat data ticket'
+    errorMessage.value = error instanceof Error ? error.message : 'Gagal memuat data ticket'
   } finally {
     loading.value = false
   }
@@ -449,75 +521,25 @@ const updateTicket = async () => {
     errorMessage.value = ''
 
     const ticketId = route.params.id as string
+    validateBeforeUpdate(originalTicket.value)
+    const updateData = buildUpdatePayload()
 
-    // Validate all documents are checked
-    if (!formData.sj_available || (!formData.ktp_available && !formData.sim_available)) {
-      throw new Error('Dokumen SJ wajib tersedia, dan setidaknya salah satu dari KTP atau SIM harus tersedia sebelum melanjutkan')
-    }
-
-    // Validate license plate parts
-    if (!formData.license_plate_letters1 || !formData.license_plate_numbers || !formData.license_plate_letters2) {
-      throw new Error('Plat nomor harus diisi lengkap (huruf-angka-huruf)')
-    }
-
-    // Validate principal for inbound
-    if (originalTicket.value?.activity_type === true && !formData.principal && !formData.vendor) {
-      throw new Error('Principal atau vendor wajib diisi untuk aktivitas Inbound')
-    }
-
-    // Validate vendor for outbound
-    if (originalTicket.value?.activity_type === false && !formData.receiver) {
-      throw new Error('Penerima wajib diisi untuk aktivitas Outbound')
-    }
-
-    // Prepare update data
-    const updateData = {
-      driver_name: formData.driver_name,
-      nik: formData.nik,
-      handphone_number: formData.handphone_number,
-      license_plate: fullLicensePlate.value,
-      vehicle: formData.vehicle,
-      principal: formData.principal,
-      vendor: formData.vendor,
-      receiver: formData.receiver,
-      sj_available: formData.sj_available,
-      ktp_available: formData.ktp_available,
-      sim_available: formData.sim_available
-    }
-
-    // Call update API
     let ok = false
-    // Try HTTP first
     try {
-      const response = await fetch(`${import.meta.env.VITE_CONVEX_URL}/api/tickets/update/${ticketId}`.replace('.convex.cloud', '.convex.site'), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData)
-      })
-      const data = await response.json()
-      if (response.ok && data?.success) {
-        ok = true
-      } else {
-        throw new Error(data?.error || `HTTP ${response.status}`)
-      }
-    } catch (httpErr: any) {
-      // Fallback to Convex client
+      ok = await httpUpdateTicket(ticketId, updateData)
+    } catch (httpErr: unknown) {
       try {
-        await convex.mutation(api.tickets.updateTicket, { ticketId: ticketId as any, ...updateData })
-        ok = true
-      } catch (convexErr: any) {
-        const msg = convexErr?.message || httpErr?.message || 'Gagal memperbarui tiket melalui Convex'
+        ok = await convexUpdateTicket(ticketId as Id<'tickets'>, updateData)
+      } catch (convexErr: unknown) {
+        const msg = (convexErr instanceof Error ? convexErr.message : undefined) || (httpErr instanceof Error ? httpErr.message : undefined) || 'Gagal memperbarui tiket melalui Convex'
         throw new Error(msg)
       }
     }
 
-    if (ok) {
-      showSuccess.value = true
-    }
-
-  } catch (error: any) {
+    if (ok) showSuccess.value = true
+  } catch (error: unknown) {
     console.error('Update error:', error)
-    errorMessage.value = error.message || 'Gagal memperbarui ticket. Silakan coba lagi.'
+    errorMessage.value = error instanceof Error ? error.message : 'Gagal memperbarui ticket. Silakan coba lagi.'
   } finally {
     isSubmitting.value = false
   }
