@@ -17,10 +17,10 @@
               class="px-4 py-2 bg-white border-2 border-[#6c366a] rounded-lg flex items-center gap-2 text-[#6c366a] font-semibold text-sm outline-none"
               title="Edit Ticket"
             >
-              <!-- printer icon (SVG) -->
+              <!-- pencil icon (SVG) -->
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M6 9V2h12v7M6 18h12v4H6v-4zM6 14H5a3 3 0 01-3-3V9a3 3 0 013-3h14a3 3 0 013 3v2a3 3 0 01-3 3h-1" />
+                  d="M15.232 5.232l3.536 3.536M4 20l7.5-2.5L20 8.5a2.121 2.121 0 00-3-3L8.5 14.5 6 19.5 4 20z" />
               </svg>
               <span>Edit</span>
             </button>
@@ -108,7 +108,7 @@
                 <span class="ml-2 text-green-700">{{ ticket.license_plate }}</span>
               </div>
               <div>
-                <span class="font-semibold text-green-800">Jenis Truk:</span>
+                <span class="font-semibold text-green-800">Jenis Kendaraan:</span>
                 <span class="ml-2 text-green-700">{{ ticket.vehicle }}</span>
               </div>
             </div>
