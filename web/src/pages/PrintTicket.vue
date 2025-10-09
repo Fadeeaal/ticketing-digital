@@ -126,8 +126,10 @@ onMounted(async () => {
   } finally {
     loading.value = false
     await nextTick()
-    window.print()
-  }
+    setTimeout(() => {
+      window.print()
+    }, 500)
+  } 
 })
 </script>
 
