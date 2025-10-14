@@ -12,7 +12,7 @@
           </button>
         </div>
       </div>
-      <p class="text-sm text-gray-500 mb-2">Ukuran: 58mm x 210mm (Thermal)</p>
+      <p class="text-sm text-gray-500 mb-2">Ukuran: 58mm x ~70mm (Thermal)</p>
     </div>
 
     <div v-if="loading" class="text-center text-gray-500 no-print">Memuat data...</div>
@@ -22,7 +22,7 @@
       <div class="ticket-card">
         <div class="qr-section">
           <div class="qr-box-wrapper">
-            <qrcode-vue v-if="ticket && ticket.ticket_status < 3" :value="getQRUrl(ticket._id, ticket.ticket_status)" :size="170" level="H" />
+            <qrcode-vue v-if="ticket && ticket.ticket_status < 3" :value="getQRUrl(ticket._id, ticket.ticket_status)" :size="70" level="H" />
             <div v-else class="qr-box-placeholder">--</div>
           </div>
           <p class="qr-scan-text">SCAN UNTUK UPDATE</p>
@@ -42,25 +42,15 @@
           <div class="section-label">Plat Nomor</div>
           <p class="info-value-medium">{{ ticket.license_plate }}</p>
         </div>
-        <div class="info-group">
-          <div class="section-label">Jenis Kendaraan</div>
-          <p class="info-value">{{ ticket.vehicle }}</p>
-        </div>
 
         <div class="info-group driver-info">
           <div class="section-label">Driver</div>
           <p class="info-value-driver">{{ ticket.driver?.name }}</p>
-          <p class="info-value-small">NIK: {{ ticket.driver?.nik }}</p>
-          <p class="info-value-small">HP: {{ ticket.driver?.handphone_number }}</p>
         </div>
         
         <div class="info-group time-info">
-          <div class="section-label">Tanggal Tiba</div>
-          <p class="info-value-medium">{{ ticket.arrival_date }}</p>
-        </div>
-        <div class="info-group time-info">
-          <div class="section-label">Waktu Tiba</div>
-          <p class="info-value-medium">{{ ticket.arrival_time || '-' }}</p>
+          <div class="section-label">Tanggal dan Waktu Tiba</div>
+          <p class="info-value-medium">{{ ticket.arrival_date }} - {{ ticket.arrival_time }}</p>
         </div>
 
         <div class="footer-text">
@@ -126,10 +116,11 @@ onMounted(async () => {
   } finally {
     loading.value = false
     await nextTick()
+    // TAMBAH DELAY UNTUK MEMASTIKAN QR CODE TERENDER
     setTimeout(() => {
       window.print()
     }, 500)
-  } 
+  }
 })
 </script>
 
@@ -145,41 +136,41 @@ onMounted(async () => {
 
 .ticket-card {
   width: 5.8cm; /* Fixed width for thermal print */
-  min-height: 21cm; /* Minimum height, content will expand */
+  min-height: unset; /* HILANGKAN BATASAN TINGGI 21CM */
   background: white;
   border: 1px solid #ddd;
-  border-radius: 4px; /* Softer edges */
+  border-radius: 4px; 
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Lighter shadow */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  padding: 0; /* No padding on the card itself */
+  padding: 0;
   font-family: 'Rubik', sans-serif;
   color: #333;
 }
 
-/* Common Styles for Info Sections */
+/* Common Styles for Info Sections - PADDING DIKURANGI */
 .header, .qr-section, .info-group, .footer-text {
-  padding: 8px 12px; /* Consistent padding left/right */
+  padding: 4px 12px; /* Vertikal dikurangi dari 8px ke 4px */
   text-align: center;
 }
 
-/* QR Code Section - Top Priority */
+/* QR Code Section - PENGURANGAN SPASI QR */
 .qr-section {
   background: #fff;
-  padding-top: 65px;
-  padding-bottom: 10px;
+  padding-top: 10px; /* Dikurangi drastis dari 65px */
+  padding-bottom: 5px; /* Dikurangi dari 10px */
   border-bottom: 1px dashed #ccc;
 }
 .qr-box-wrapper {
-  width: 150px; /* QR size */
-  height: 150px; /* QR size */
-  margin: 0 auto 8px auto;
-  margin-bottom: 30px;
+  width: 70px; /* Ukuran QR dikurangi drastis dari 150px */
+  height: 70px; /* Ukuran QR dikurangi drastis dari 150px */
+  margin: 0 auto 4px auto;
+  margin-bottom: 5px; /* Dikurangi dari 30px */
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white; /* Ensure white background for QR */
+  background: white;
   border-radius: 4px;
 }
 .qr-box-placeholder {
@@ -188,115 +179,115 @@ onMounted(async () => {
   font-weight: bold;
 }
 .qr-scan-text {
-  font-size: 10px;
+  font-size: 8px; /* Dikurangi dari 10px */
   font-weight: 700;
   color: #6c366a;
-  margin-top: 4px;
+  margin-top: 2px; /* Dikurangi dari 4px */
   letter-spacing: 0.5px;
 }
 .ticket-id {
   font-family: 'Roboto Mono', monospace;
-  font-size: 12px;
+  font-size: 10px; /* Dikurangi dari 12px */
   font-weight: 700;
   color: #555;
-  margin-top: 6px;
+  margin-top: 2px; /* Dikurangi dari 6px */
 }
 
 /* Ticket Header */
 .header {
   border-bottom: 1px solid #eee;
-  padding-top: 12px;
-  padding-bottom: 8px;
+  padding-top: 6px; /* Dikurangi dari 12px */
+  padding-bottom: 4px; /* Dikurangi dari 8px */
 }
 .title {
-  font-size: 16px;
+  font-size: 14px; /* Dikurangi dari 16px */
   font-weight: 900;
   color: #6c366a;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px; /* Dikurangi dari 1.5px */
   margin: 0;
   text-transform: uppercase;
 }
 
 /* General Info Groups */
 .info-group {
-  padding: 8px 12px;
+  padding: 4px 12px; /* Vertikal dikurangi dari 8px ke 4px */
   text-align: center;
   border-bottom: 1px dashed #eee;
 }
 .info-group:last-of-type {
-  border-bottom: none; /* No border for the last one */
+  border-bottom: none;
 }
 
 .section-label {
-  font-size: 9px;
+  font-size: 8px; /* Dikurangi dari 9px */
   font-weight: 700;
   color: #000;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 2px;
-  display: block; /* Ensures it takes full width */
+  letter-spacing: 0.3px; /* Dikurangi dari 0.5px */
+  margin-bottom: 0px; /* Dikurangi dari 2px */
+  display: block;
 }
 
 .info-value {
-  font-size: 13px;
+  font-size: 11px; /* Dikurangi dari 13px */
   font-weight: 500;
   color: #333;
   margin: 0;
 }
 .info-value-small {
-  font-size: 11px;
+  font-size: 9px; /* Dikurangi dari 11px */
   font-weight: 400;
   color: #555;
   margin: 0;
 }
 .info-value-medium {
-  font-size: 15px;
+  font-size: 12px; /* Dikurangi dari 15px */
   font-weight: 700;
   color: #000;
   margin: 0;
   font-family: 'Roboto Mono', monospace;
 }
 .info-value-large {
-  font-size: 22px; /* Very large for company name */
+  font-size: 16px; /* Dikurangi drastis dari 22px */
   font-weight: 900;
   color: #000;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.1; /* Dikurangi dari 1.2 */
 }
 .info-value-driver {
-  font-size: 14px;
+  font-size: 11px; /* Dikurangi dari 14px */
   font-weight: 700;
   color: #333;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0; /* Dikurangi dari 4px */
 }
 
-/* Highlight for Company */
+/* Highlight for Company (Optional, tapi padding dikurangi) */
 .info-group.highlight {
-  background: #fdf5e6; /* Soft yellow background */
+  background: #fdf5e6;
   border-bottom: 1px solid #ffd700;
-  padding: 10px 12px;
+  padding: 6px 12px; /* Dikurangi dari 10px */
 }
 
 .driver-info {
   border-top: 1px dashed #ccc;
-  padding-top: 10px;
+  padding-top: 6px; /* Dikurangi dari 10px */
 }
 .time-info {
-  padding-top: 10px;
+  padding-top: 6px; /* Dikurangi dari 10px */
 }
 
 
 /* Footer Text */
 .footer-text {
-  font-size: 9px;
+  font-size: 8px; /* Dikurangi dari 9px */
   color: #777;
   font-style: italic;
-  padding-top: 10px;
-  margin-top: auto; /* Push to bottom */
+  padding-top: 6px; /* Dikurangi dari 10px */
+  margin-top: auto;
   border-top: 1px dashed #eee;
 }
 .footer-text p {
-  margin: 0 0 2px 0;
+  margin: 0; /* Margin bawah 2px dihilangkan */
 }
 
 /* Print styles for thermal paper */
@@ -322,9 +313,9 @@ onMounted(async () => {
 
   .ticket-card {
     width: 100%;
-    min-height: unset; /* Let content define height */
+    min-height: unset; /* PENTING: MEMASTIKAN TINGGI MENGGUNAKAN AUTO/KONTEN */
     box-shadow: none;
-    border: none; /* No border for actual thermal print */
+    border: none;
     border-radius: 0;
     padding: 0;
   }
