@@ -22,11 +22,9 @@
       <div class="ticket-card">
         <div class="qr-section">
           <div class="qr-box-wrapper">
-            <qrcode-vue v-if="ticket && ticket.ticket_status < 3" :value="getQRUrl(ticket._id, ticket.ticket_status)" :size="70" level="H" />
+            <qrcode-vue v-if="ticket && ticket.ticket_status < 3" :value="getQRUrl(ticket._id, ticket.ticket_status)" :size="100" level="H" />
             <div v-else class="qr-box-placeholder">--</div>
           </div>
-          <p class="qr-scan-text">SCAN UNTUK UPDATE</p>
-          <p class="ticket-id">ID: {{ ticket._id.slice(-8).toUpperCase() }}</p>
         </div>
 
         <div class="header">
@@ -34,17 +32,14 @@
         </div>
         
         <div class="info-group">
-          <div class="section-label">Perusahaan / Vendor</div>
           <p class="info-value-large">{{ getCompany(ticket) }}</p>
         </div>
 
         <div class="info-group">
-          <div class="section-label">Plat Nomor</div>
           <p class="info-value-medium">{{ ticket.license_plate }}</p>
         </div>
 
         <div class="info-group driver-info">
-          <div class="section-label">Driver</div>
           <p class="info-value-driver">{{ ticket.driver?.name }}</p>
         </div>
         
@@ -158,8 +153,8 @@ onMounted(async () => {
 /* QR Code Section - PENGURANGAN SPASI QR */
 .qr-section {
   background: #fff;
-  padding-top: 10px; /* Dikurangi drastis dari 65px */
-  padding-bottom: 5px; /* Dikurangi dari 10px */
+  padding-top: 30px; /* Ditambahkan margin atas */
+  padding-bottom: 15px; /* Dikurangi dari 10px */
   border-bottom: 1px dashed #ccc;
 }
 .qr-box-wrapper {
