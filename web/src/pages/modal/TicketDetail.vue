@@ -5,9 +5,7 @@
       <div class="px-8 py-6 bg-gradient-to-r from-[#6c366a] to-purple-600 rounded-t-2xl">
         <div class="flex items-center justify-between">
           <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
+            <font-awesome-icon :icon="['fas', 'ticket']" class="text-white"/>
             Detail Ticket
           </h2>
           <div class="flex items-center gap-3">
@@ -17,11 +15,7 @@
               class="px-4 py-2 bg-white border-2 border-[#6c366a] rounded-lg flex items-center gap-2 text-[#6c366a] font-semibold text-sm outline-none"
               title="Edit Ticket"
             >
-              <!-- pencil icon (SVG) -->
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15.232 5.232l3.536 3.536M4 20l7.5-2.5L20 8.5a2.121 2.121 0 00-3-3L8.5 14.5 6 19.5 4 20z" />
-              </svg>
+              <font-awesome-icon :icon="['fas', 'pencil']" class="text-[#6c366a]"/>
               <span>Edit</span>
             </button>
 
@@ -31,11 +25,7 @@
               class="px-4 py-2 bg-white border-2 border-[#6c366a] rounded-lg flex items-center gap-2 text-[#6c366a] font-semibold text-sm outline-none"
               title="Print Ticket"
             >
-              <!-- printer icon (SVG) -->
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M6 9V2h12v7M6 18h12v4H6v-4zM6 14H5a3 3 0 01-3-3V9a3 3 0 013-3h14a3 3 0 013 3v2a3 3 0 01-3 3h-1" />
-              </svg>
+              <font-awesome-icon :icon="['fas', 'print']" class="text-[#6c366a]"/>
               <span>Print</span>
             </button>
             

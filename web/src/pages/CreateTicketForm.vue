@@ -4,13 +4,10 @@
       <!-- Header Section -->
       <div class="text-center mb-10">
         <div class="flex items-center justify-center gap-4 mb-4">
-          <div>
-            <img src="../assets/orbiz-logo.png" alt="Orbiz Logo" class="w-10 h-10 object-contain" />
-          </div>
-          <h1 class="text-slate-800 text-4xl font-bold tracking-tight bg-gradient-to-r from-[#6c366a] to-purple-600 bg-clip-text text-transparent">Form Ticketing</h1>
+          <h1 class="text-slate-800 text-3xl font-bold leading-tight bg-gradient-to-r from-[#6c366a] to-purple-600 bg-clip-text text-transparent">Form Ticketing</h1>
         </div>
         <p class="text-slate-600 text-lg font-medium">Silakan isi ticketing agar aktivitas diproses</p>
-        <div class="w-24 h-1 bg-gradient-to-r from-[#6c366a] to-purple-600 rounded-full mx-auto mt-4"></div>
+        <div class="w-24 h-1 bg-gradient-to-r from-[#6c366a] to-purple-600 rounded-full mx-auto mt-6"></div>
       </div>
 
       <!-- Main Form Card -->
@@ -35,9 +32,7 @@
           <div class="mb-8">
             <h3 class="text-xl font-bold text-[#6c366a] mb-6 flex items-center gap-3">
               <div class="w-8 h-8 bg-gradient-to-br from-[#6c366a] to-purple-600 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
+                <font-awesome-icon :icon="['far', 'user']" class="text-white"/>
               </div>
               Informasi Driver
             </h3>
@@ -78,10 +73,7 @@
           <div class="mb-8">
             <h3 class="text-xl font-bold text-[#6c366a] mb-6 flex items-center gap-3">
               <div class="w-8 h-8 bg-gradient-to-br from-[#6c366a] to-purple-600 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
-                </svg>
+                <font-awesome-icon :icon="['far', 'truck']" class="text-white" />
               </div>
               Informasi Kendaraan
             </h3>
@@ -115,9 +107,7 @@
           <div class="mb-8">
             <h3 class="text-xl font-bold text-[#6c366a] mb-6 flex items-center gap-3">
               <div class="w-8 h-8 bg-gradient-to-br from-[#6c366a] to-purple-600 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                </svg>
+                <font-awesome-icon :icon="['far', 'building']" class="text-white"/>
               </div>
               Informasi Perusahaan
             </h3>
@@ -161,13 +151,11 @@
           <div class="mb-8">
             <h3 class="text-xl font-bold text-[#6c366a] mb-2 flex items-center gap-3">
               <div class="w-8 h-8 bg-gradient-to-br from-[#6c366a] to-purple-600 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
+                <font-awesome-icon :icon="['far', 'file']" class="text-white"/>
               </div>
               Verifikasi Dokumen
             </h3>
-            <p class="text-slate-600 font-medium mb-6">SJ wajib, dan minimal salah satu dari KTP atau SIM harus tersedia</p>
+            <p class="text-slate-600 font-medium mb-6">Surat Jalan (SJ) wajib, dan minimal salah satu dari KTP atau SIM harus tersedia</p>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div class="p-4 bg-white rounded-xl border-2 border-purple-200 hover:border-[#6c366a] transition-colors duration-200 hover:shadow-lg">
@@ -179,7 +167,7 @@
                     required
                   />
                   <span class="absolute left-0 h-6 w-6 bg-white border-2 border-purple-300 rounded-lg transition-all duration-200 peer-hover:border-[#6c366a] peer-checked:bg-[#6c366a] peer-checked:border-[#6c366a] after:content-[''] after:absolute after:hidden after:left-1.5 after:top-1 after:w-1.5 after:h-3 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
-                  <span class="ml-1">📄 Surat Jalan (SJ)</span>
+                  <span class="ml-1">(SJ) Surat Jalan</span>
                 </label>
               </div>
 
@@ -191,7 +179,7 @@
                     class="absolute opacity-0 cursor-pointer h-0 w-0 peer"
                   />
                   <span class="absolute left-0 h-6 w-6 bg-white border-2 border-purple-300 rounded-lg transition-all duration-200 peer-hover:border-[#6c366a] peer-checked:bg-[#6c366a] peer-checked:border-[#6c366a] after:content-[''] after:absolute after:hidden after:left-1.5 after:top-1 after:w-1.5 after:h-3 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
-                  <span class="ml-1">🆔 KTP</span>
+                  <span class="ml-1">KTP (Kartu Tanda Penduduk)</span>
                 </label>
               </div>
 
@@ -203,7 +191,7 @@
                     class="absolute opacity-0 cursor-pointer h-0 w-0 peer"
                   />
                   <span class="absolute left-0 h-6 w-6 bg-white border-2 border-purple-300 rounded-lg transition-all duration-200 peer-hover:border-[#6c366a] peer-checked:bg-[#6c366a] peer-checked:border-[#6c366a] after:content-[''] after:absolute after:hidden after:left-1.5 after:top-1 after:w-1.5 after:h-3 after:border-white after:border-r-2 after:border-b-2 after:rotate-45 peer-checked:after:block"></span>
-                  <span class="ml-1">🚗 SIM</span>
+                  <span class="ml-1">SIM (Surat Izin Mengemudi)</span>
                 </label>
               </div>
             </div>
@@ -227,7 +215,7 @@
     <div v-if="showSuccess" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-5 animate-fade-in" @click="closeModal">
       <div class="bg-white p-8 rounded-3xl text-center max-w-md w-full shadow-2xl border border-purple-200 transform animate-scale-in" @click.stop>
         <div class="w-20 h-20 bg-gradient-to-r from-[#6c366a] to-purple-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg">✓</div>
-        <h2 class="mb-4 text-slate-800 text-2xl font-bold">Tiket Berhasil Dibuat!</h2>
+        <h2 class="mb-4 text-slate-800 text-2xl font-bold">Tiket berhasil dibuat!</h2>
         <p class="text-slate-600 mb-6">Tiket telah berhasil disimpan dalam sistem</p>
         <button @click="closeModal" class="py-3 px-8 bg-gradient-to-r from-[#6c366a] to-purple-600 hover:from-purple-700 hover:to-[#6c366a] text-white border-none rounded-xl font-bold cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl">Tutup</button>
       </div>
@@ -278,7 +266,6 @@ const formData = reactive({
   sim_available: false
 })
 
-// Options data untuk setiap dropdown
 const activityTypeOptions = [
   { value: 'true', label: 'Inbound' },
   { value: 'false', label: 'Outbound' }
@@ -457,7 +444,7 @@ const submitTicket = async () => {
     formData.vehicle = ''
     formData.principal = ''
     formData.vendor = ''
-  formData.receiver = ''
+    formData.receiver = ''
     formData.sj_available = false
     formData.ktp_available = false
     formData.sim_available = false

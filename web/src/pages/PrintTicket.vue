@@ -130,7 +130,7 @@ onMounted(async () => {
 }
 
 .ticket-card {
-  width: 5.8cm; /* Fixed width for thermal print */
+  width: 5.8cm; 
   min-height: unset; /* HILANGKAN BATASAN TINGGI 21CM */
   background: white;
   border: 1px solid #ddd;
