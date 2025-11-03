@@ -105,7 +105,7 @@
               <div class="text-sm font-medium text-gray-500">Selesai</div>
             </div>
             <div class="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-green-100 to-green-200 rounded-xl">
-              <font-awesome-icon :icon="['fas', 'clock']" class="text-green-600" size="xl"/>
+              <font-awesome-icon :icon="['far', 'circle-check']" class="text-green-600" size="xl"/>
             </div>
           </div>
         </div>
